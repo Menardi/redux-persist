@@ -57,3 +57,30 @@ test('it updates removed keys', () => {
     expect(spy.withArgs('persist:persist-reducer-test', '{"b":"1"}').calledOnce).toBe(true);
     expect(spy.withArgs('persist:persist-reducer-test', '{}').calledOnce).toBe(true);
 })
+
+test('it throws when a transform errors', () => {
+    const errorTransform = {
+        in: () => { throw new Error('transform error') },
+        out: (s: any) => s,
+    }
+    const { update } = createPersistoid({
+        ...config,
+        transforms: [errorTransform],
+    })
+    update({ a: 1 })
+    expect(() => clock.tick(1)).toThrow('transform error')
+})
+
+test('it does not write to storage after a transform error', () => {
+    const errorTransform = {
+        in: () => { throw new Error('transform error') },
+        out: (s: any) => s,
+    }
+    const { update } = createPersistoid({
+        ...config,
+        transforms: [errorTransform],
+    })
+    update({ a: 1 })
+    try { clock.tick(1) } catch (_e) { /* expected */ }
+    expect(spy.callCount).toBe(0)
+})

@@ -35,8 +35,8 @@
     "clean": "rimraf dist",
     "prepare": "npm run build",
     "precommit": "lint-staged",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "vitest run --silent=passed-only",
+    "test:watch": "vitest --silent=passed-only",
     "typecheck": "tsc --noEmit",
     "version": "npm run clean && npm run build && git add LIBSIZE.md"
   },
@@ -62,7 +62,7 @@
     "redux": "^4.0.4",
     "redux-mock-store": "^1.5.1",
     "rimraf": "^2.7.1",
-    "sinon": "^4.2.2",
+    "sinon": "^21.0.1",
     "storage-memory": "0.0.2",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"

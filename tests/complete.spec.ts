@@ -1,16 +1,12 @@
 import { test, expect } from 'vitest'
 import sinon from 'sinon'
 
-import _ from 'lodash'
-import configureStore from 'redux-mock-store'
 import { combineReducers, createStore } from 'redux'
 
 import persistReducer from '../src/persistReducer'
 import persistStore from '../src/persistStore'
 import { createMemoryStorage } from 'storage-memory'
 import brokenStorage from './utils/brokenStorage'
-import { PERSIST, REHYDRATE } from '../src/constants'
-import sleep from './utils/sleep'
 
 let reducer = () => ({})
 const config = {
@@ -51,17 +47,18 @@ test('persistStore timeout 0 never bootstraps', () => {
 })
 
 
-test('persistStore timeout forces bootstrap', () => {
-  return new Promise<void>((resolve, reject) => {
-    let r1 = persistReducer({...config, storage: brokenStorage}, reducer)
+test('persistStore timeout calls onError and does not bootstrap', () => {
+  return new Promise<void>((resolve) => {
+    let onError = sinon.spy()
+    let r1 = persistReducer({...config, storage: brokenStorage, onError}, reducer)
     const rootReducer = combineReducers({ r1 })
     const store = createStore(rootReducer)
-    const persistor = persistStore(store, null, () => {
-      expect(persistor.getState().bootstrapped).toBe(true)
-      resolve()
-    })
+    const persistor = persistStore(store, null)
     setTimeout(() => {
-      reject()
+      expect(persistor.getState().bootstrapped).toBe(false)
+      expect(onError.callCount).toBe(1)
+      expect(onError.firstCall.args[0].message).toContain('persist timed out')
+      resolve()
     }, 10)
   })
 })

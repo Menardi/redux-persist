@@ -30,6 +30,7 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
   let keysToProcess: Array<string> = []
   let timeIterator: IntervalID | null = null
   let writePromise: Promise<any> | null = null
+  let transformError: Error | null = null
 
   const update = (state: Record<string, any>): void => {
     // add any changed keys to the queue
@@ -70,8 +71,17 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
 
     let key = keysToProcess.shift()!
     let endState = transforms.reduce((subState, transformer) => {
-      return transformer.in(subState, key, lastState)
+      try {
+        return transformer.in(subState, key, lastState)
+      } catch (err) {
+        transformError = err as Error
+        return lastState
+      }
     }, lastState[key])
+
+    if (transformError instanceof Error) {
+      throw transformError
+    }
 
     if (endState !== undefined) {
       try {
@@ -93,6 +103,8 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
   }
 
   function writeStagedState(): void {
+    if (transformError) return
+
     // cleanup any removed keys just before write.
     Object.keys(stagedState).forEach(key => {
       if (lastState[key] === undefined) {

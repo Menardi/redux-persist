@@ -51,6 +51,7 @@ export interface PersistConfig<S = any, RS = any, HSS = any, ESS = any> {
   deserialize?: boolean | ((serialized: string) => any)
   timeout?: number
   writeFailHandler?: (err: Error) => void
+  onError?: (err: Error) => void
 }
 
 export interface PersistorOptions {

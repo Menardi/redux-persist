@@ -123,7 +123,11 @@ export default function persistReducer<State>(
               )
 
             // only rehydrate if we are not already sealed
-            if (!_sealed) {
+            if (err) {
+              console.error("redux-persist: Not rehydrating due to", err)
+              _paused = true // stop any further redux-persist processing
+              setTimeout(() => config.onError?.(err)) // wrapped in setTimeout to ensure it breaks out of the promise
+            } else if (!_sealed) {
               action.rehydrate(config.key, payload, err)
               _sealed = true
             }
