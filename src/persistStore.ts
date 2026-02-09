@@ -1,6 +1,4 @@
-// @flow
-
-import type {
+import {
   Persistor,
   PersistConfig,
   PersistorOptions,
@@ -8,14 +6,12 @@ import type {
   MigrationManifest,
   RehydrateAction,
   RehydrateErrorType,
+  PersistorAction,
 } from './types'
 
-import { createStore } from 'redux'
+import { Store, createStore, AnyAction } from 'redux'
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE } from './constants'
 
-type PendingRehydrate = [Object, RehydrateErrorType, PersistConfig]
-type Persist = <R>(PersistConfig, MigrationManifest) => R => R
-type CreatePersistor = Object => void
 type BoostrappedCb = () => any
 
 const initialState: PersistorState = {
@@ -23,7 +19,10 @@ const initialState: PersistorState = {
   bootstrapped: false,
 }
 
-const persistorReducer = (state = initialState, action) => {
+const persistorReducer = (
+  state: PersistorState = initialState,
+  action: PersistorAction
+): PersistorState => {
   switch (action.type) {
     case REGISTER:
       return { ...state, registry: [...state.registry, action.key] }
@@ -38,13 +37,13 @@ const persistorReducer = (state = initialState, action) => {
 }
 
 export default function persistStore(
-  store: Object,
-  options?: ?PersistorOptions,
+  store: Store<any, AnyAction>,
+  options?: PersistorOptions | null,
   cb?: BoostrappedCb
 ): Persistor {
   // help catch incorrect usage of passing PersistConfig in as PersistorOptions
   if (process.env.NODE_ENV !== 'production') {
-    let optionsToTest: Object = options || {}
+    let optionsToTest: Record<string, any> = options || {}
     let bannedKeys = [
       'blacklist',
       'whitelist',
@@ -60,29 +59,29 @@ export default function persistStore(
         )
     })
   }
-  let boostrappedCb = cb || false
+  let boostrappedCb: BoostrappedCb | false = cb || false
 
   let _pStore = createStore(
     persistorReducer,
     initialState,
     options && options.enhancer ? options.enhancer : undefined
   )
-  let register = (key: string) => {
+  let register = (key: string): void => {
     _pStore.dispatch({
       type: REGISTER,
       key,
     })
   }
 
-  let rehydrate = (key: string, payload: Object, err: any) => {
-    let rehydrateAction = {
+  let rehydrate = (key: string, payload: object | null, err: any): void => {
+    let rehydrateAction: RehydrateAction = {
       type: REHYDRATE,
       payload,
       err,
       key,
     }
     // dispatch to `store` to rehydrate and `persistor` to track result
-    store.dispatch(rehydrateAction)
+    store.dispatch(rehydrateAction as any)
     _pStore.dispatch(rehydrateAction)
     if (boostrappedCb && persistor.getState().bootstrapped) {
       boostrappedCb()
@@ -92,37 +91,37 @@ export default function persistStore(
 
   let persistor: Persistor = {
     ..._pStore,
-    purge: () => {
-      let results = []
+    purge: (): Promise<any> => {
+      let results: Array<Promise<any>> = []
       store.dispatch({
         type: PURGE,
-        result: purgeResult => {
+        result: (purgeResult: Promise<any>) => {
           results.push(purgeResult)
         },
-      })
+      } as any)
       return Promise.all(results)
     },
-    flush: () => {
-      let results = []
+    flush: (): Promise<any> => {
+      let results: Array<Promise<any>> = []
       store.dispatch({
         type: FLUSH,
-        result: flushResult => {
+        result: (flushResult: Promise<any>) => {
           results.push(flushResult)
         },
-      })
+      } as any)
       return Promise.all(results)
     },
-    pause: () => {
+    pause: (): void => {
       store.dispatch({
         type: PAUSE,
-      })
+      } as any)
     },
-    persist: () => {
-      store.dispatch({ type: PERSIST, register, rehydrate })
+    persist: (): void => {
+      store.dispatch({ type: PERSIST, register, rehydrate } as any)
     },
   }
 
-  if (!(options && options.manualPersist)){
+  if (!(options && options.manualPersist)) {
     persistor.persist()
   }
 

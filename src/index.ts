@@ -1,5 +1,3 @@
-// @flow
-
 export { default as persistReducer } from './persistReducer'
 export { default as persistCombineReducers } from './persistCombineReducers'
 export { default as persistStore } from './persistStore'
@@ -10,3 +8,23 @@ export { default as createPersistoid } from './createPersistoid'
 export { default as purgeStoredState } from './purgeStoredState'
 
 export * from './constants'
+
+export type {
+  PersistConfig,
+  PersistState,
+  PersistedState,
+  Persistor,
+  PersistorState,
+  Persistoid,
+  Transform,
+  TransformConfig,
+  TransformInbound,
+  TransformOutbound,
+  Storage,
+  WebStorage,
+  MigrationManifest,
+  RehydrateAction,
+  StateReconciler,
+  PersistMigrate,
+  PersistorOptions,
+} from './types'

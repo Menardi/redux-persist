@@ -1,10 +1,10 @@
-// @flow
 import getStorage from './getStorage'
+import { WebStorage } from '../types'
 
-export default function createWebStorage(type: string) {
+export default function createWebStorage(type: string): WebStorage {
   let storage = getStorage(type)
   return {
-    getItem: (key: string): Promise<string> => {
+    getItem: (key: string): Promise<string | null> => {
       return new Promise((resolve, reject) => {
         resolve(storage.getItem(key))
       })

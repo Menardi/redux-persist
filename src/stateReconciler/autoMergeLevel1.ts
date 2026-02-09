@@ -1,20 +1,18 @@
-// @flow
-
 /*
-  autoMergeLevel1: 
+  autoMergeLevel1:
     - merges 1 level of substate
     - skips substate if already modified
 */
 
-import type { PersistConfig } from '../types'
+import { PersistConfig } from '../types'
 
-export default function autoMergeLevel1<State: Object>(
+export default function autoMergeLevel1<State extends Record<string, any>>(
   inboundState: State,
   originalState: State,
   reducedState: State,
   { debug }: PersistConfig
 ): State {
-  let newState = { ...reducedState }
+  let newState = { ...reducedState } as any
   // only rehydrate if inboundState exists and is an object
   if (inboundState && typeof inboundState === 'object') {
     Object.keys(inboundState).forEach(key => {

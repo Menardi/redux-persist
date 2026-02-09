@@ -1,31 +1,29 @@
-// @flow
-
-import type { PersistConfig } from './types'
+import { PersistConfig } from './types'
 
 import { KEY_PREFIX } from './constants'
 
 export default function getStoredState(
   config: PersistConfig
-): Promise<Object | void> {
+): Promise<Record<string, any> | undefined> {
   const transforms = config.transforms || []
   const storageKey = `${
     config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX
   }${config.key}`
   const storage = config.storage
   const debug = config.debug
-  let deserialize
+  let deserialize: (serialized: string) => any
   if (config.deserialize === false) {
-    deserialize = x => x
+    deserialize = (x: any) => x
   } else if (typeof config.deserialize === 'function') {
     deserialize = config.deserialize
   } else {
     deserialize = defaultDeserialize
   }
-  return storage.getItem(storageKey).then(serialized => {
+  return storage.getItem(storageKey).then((serialized: any) => {
     if (!serialized) return undefined
     else {
       try {
-        let state = {}
+        let state: Record<string, any> = {}
         let rawState = deserialize(serialized)
         Object.keys(rawState).forEach(key => {
           state[key] = transforms.reduceRight((subState, transformer) => {
@@ -45,6 +43,6 @@ export default function getStoredState(
   })
 }
 
-function defaultDeserialize(serial) {
+function defaultDeserialize(serial: string): any {
   return JSON.parse(serial)
 }

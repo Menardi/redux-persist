@@ -1,17 +1,15 @@
-// @flow
-import React, { PureComponent } from 'react' // eslint-disable-line import/no-unresolved
-import type { Node } from 'react' // eslint-disable-line import/no-unresolved
-import type { Persistor } from '../types'
+import React, { PureComponent, ReactNode } from 'react' // eslint-disable-line import/no-unresolved
+import { Persistor } from '../types'
 
 type Props = {
-  onBeforeLift?: Function,
-  children: Node | Function,
-  loading: Node,
-  persistor: Persistor,
+  onBeforeLift?: () => void | Promise<void>
+  children: ReactNode | ((bootstrapped: boolean) => ReactNode)
+  loading: ReactNode
+  persistor: Persistor
 }
 
 type State = {
-  bootstrapped: boolean,
+  bootstrapped: boolean
 }
 
 export class PersistGate extends PureComponent<Props, State> {
@@ -20,19 +18,19 @@ export class PersistGate extends PureComponent<Props, State> {
     loading: null,
   }
 
-  state = {
+  state: State = {
     bootstrapped: false,
   }
-  _unsubscribe: ?Function
+  _unsubscribe: (() => void) | undefined
 
-  componentDidMount() {
+  componentDidMount(): void {
     this._unsubscribe = this.props.persistor.subscribe(
       this.handlePersistorState
     )
     this.handlePersistorState()
   }
 
-  handlePersistorState = () => {
+  handlePersistorState = (): void => {
     const { persistor } = this.props
     let { bootstrapped } = persistor.getState()
     if (bootstrapped) {
@@ -46,11 +44,11 @@ export class PersistGate extends PureComponent<Props, State> {
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount(): void {
     this._unsubscribe && this._unsubscribe()
   }
 
-  render() {
+  render(): ReactNode {
     if (process.env.NODE_ENV !== 'production') {
       if (typeof this.props.children === 'function' && this.props.loading)
         console.error(

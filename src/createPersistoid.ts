@@ -1,24 +1,22 @@
-// @flow
-
 import { KEY_PREFIX, REHYDRATE } from './constants'
 
-import type { Persistoid, PersistConfig, Transform } from './types'
+import { Persistoid, PersistConfig, Transform } from './types'
 
-type IntervalID = any // @TODO remove once flow < 0.63 support is no longer required.
+type IntervalID = ReturnType<typeof setInterval>
 
 export default function createPersistoid(config: PersistConfig): Persistoid {
   // defaults
-  const blacklist: ?Array<string> = config.blacklist || null
-  const whitelist: ?Array<string> = config.whitelist || null
+  const blacklist: Array<string> | null = config.blacklist || null
+  const whitelist: Array<string> | null = config.whitelist || null
   const transforms = config.transforms || []
   const throttle = config.throttle || 0
   const storageKey = `${
     config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX
   }${config.key}`
   const storage = config.storage
-  let serialize
+  let serialize: (state: any) => string
   if (config.serialize === false) {
-    serialize = x => x
+    serialize = (x: any) => x
   } else if (typeof config.serialize === 'function') {
     serialize = config.serialize
   } else {
@@ -27,13 +25,13 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
   const writeFailHandler = config.writeFailHandler || null
 
   // initialize stateful values
-  let lastState = {}
-  let stagedState = {}
-  let keysToProcess = []
-  let timeIterator: ?IntervalID = null
-  let writePromise = null
+  let lastState: Record<string, any> = {}
+  let stagedState: Record<string, any> = {}
+  let keysToProcess: Array<string> = []
+  let timeIterator: IntervalID | null = null
+  let writePromise: Promise<any> | null = null
 
-  const update = (state: Object) => {
+  const update = (state: Record<string, any>): void => {
     // add any changed keys to the queue
     Object.keys(state).forEach(key => {
       if (!passWhitelistBlacklist(key)) return // is keyspace ignored? noop
@@ -63,14 +61,14 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
     lastState = state
   }
 
-  function processNextKey() {
+  function processNextKey(): void {
     if (keysToProcess.length === 0) {
       if (timeIterator) clearInterval(timeIterator)
       timeIterator = null
       return
     }
 
-    let key = keysToProcess.shift()
+    let key = keysToProcess.shift()!
     let endState = transforms.reduce((subState, transformer) => {
       return transformer.in(subState, key, lastState)
     }, lastState[key])
@@ -94,7 +92,7 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
     }
   }
 
-  function writeStagedState() {
+  function writeStagedState(): void {
     // cleanup any removed keys just before write.
     Object.keys(stagedState).forEach(key => {
       if (lastState[key] === undefined) {
@@ -107,14 +105,14 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
       .catch(onWriteFail)
   }
 
-  function passWhitelistBlacklist(key) {
+  function passWhitelistBlacklist(key: string): boolean {
     if (whitelist && whitelist.indexOf(key) === -1 && key !== '_persist')
       return false
     if (blacklist && blacklist.indexOf(key) !== -1) return false
     return true
   }
 
-  function onWriteFail(err) {
+  function onWriteFail(err: Error): void {
     // @TODO add fail handlers (typically storage full)
     if (writeFailHandler) writeFailHandler(err)
     if (err && process.env.NODE_ENV !== 'production') {
@@ -122,7 +120,7 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
     }
   }
 
-  const flush = () => {
+  const flush = (): Promise<any> => {
     while (keysToProcess.length !== 0) {
       processNextKey()
     }
@@ -137,6 +135,6 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
 }
 
 // @NOTE in the future this may be exposed via config
-function defaultSerialize(data) {
+function defaultSerialize(data: any): string {
   return JSON.stringify(data)
 }

@@ -1,25 +1,19 @@
-// @flow
-
-import { combineReducers } from 'redux'
+import { combineReducers, Reducer, ReducersMapObject } from 'redux'
 import persistReducer from './persistReducer'
 import autoMergeLevel2 from './stateReconciler/autoMergeLevel2'
 
-import type { PersistConfig } from './types'
+import { PersistConfig, PersistState } from './types'
 
-type Reducers = {
-  [key: string]: Function,
-}
-
-type Reducer = (state: Object, action: Object) => Object
+type PersistPartial = { _persist: PersistState }
 
 // combineReducers + persistReducer with stateReconciler defaulted to autoMergeLevel2
-export default function persistCombineReducers(
-  config: PersistConfig,
-  reducers: Reducers
-): Reducer {
+export default function persistCombineReducers<S>(
+  config: PersistConfig<S>,
+  reducers: ReducersMapObject<S, any>
+): Reducer<S & PersistPartial, any> {
   config.stateReconciler =
     config.stateReconciler === undefined
       ? autoMergeLevel2
       : config.stateReconciler
-  return persistReducer(config, combineReducers(reducers))
+  return persistReducer(config, combineReducers(reducers) as Reducer<S, any>)
 }

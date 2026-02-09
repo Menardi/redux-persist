@@ -1,21 +1,19 @@
-// @flow
-
 /*
-  autoMergeLevel2: 
+  autoMergeLevel2:
     - merges 2 level of substate
     - skips substate if already modified
     - this is essentially redux-perist v4 behavior
 */
 
-import type { PersistConfig } from '../types'
+import { PersistConfig } from '../types'
 
-export default function autoMergeLevel2<State: Object>(
+export default function autoMergeLevel2<State extends Record<string, any>>(
   inboundState: State,
   originalState: State,
   reducedState: State,
   { debug }: PersistConfig
 ): State {
-  let newState = { ...reducedState }
+  let newState = { ...reducedState } as any
   // only rehydrate if inboundState exists and is an object
   if (inboundState && typeof inboundState === 'object') {
     Object.keys(inboundState).forEach(key => {
@@ -55,6 +53,6 @@ export default function autoMergeLevel2<State: Object>(
   return newState
 }
 
-function isPlainEnoughObject(o) {
+function isPlainEnoughObject(o: any): o is Record<string, any> {
   return o !== null && !Array.isArray(o) && typeof o === 'object'
 }

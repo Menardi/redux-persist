@@ -1,23 +1,21 @@
-// @flow
-
 import persistCombineReducers from '../src/persistCombineReducers'
 import { createMemoryStorage } from 'storage-memory'
 
-import test from 'ava'
+import { test, expect } from 'vitest'
 
 const config = {
   key: 'TestConfig',
   storage: createMemoryStorage()
 }
 
-test('persistCombineReducers returns a function', t => {
+test('persistCombineReducers returns a function', () => {
   let reducer = persistCombineReducers(config, {
     foo: () => ({})
   })
 
-  t.is(typeof reducer, 'function')
+  expect(typeof reducer).toBe('function')
 })
 
-test.skip('persistCombineReducers merges two levels deep of state', t => {
-  
+test.skip('persistCombineReducers merges two levels deep of state', () => {
+
 })

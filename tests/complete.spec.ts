@@ -1,7 +1,4 @@
-
-// @flow
-
-import test from 'ava'
+import { test, expect } from 'vitest'
 import sinon from 'sinon'
 
 import _ from 'lodash'
@@ -24,43 +21,43 @@ const config = {
   timeout: 5,
 }
 
-test('multiple persistReducers work together', t => {
-  return new Promise((resolve, reject) => {
+test('multiple persistReducers work together', () => {
+  return new Promise<void>((resolve) => {
     let r1 = persistReducer(config, reducer)
     let r2 = persistReducer(config, reducer)
     const rootReducer = combineReducers({ r1, r2 })
     const store = createStore(rootReducer)
     const persistor = persistStore(store, {}, () => {
-      t.is(persistor.getState().bootstrapped, true)
-      resolve()      
+      expect(persistor.getState().bootstrapped).toBe(true)
+      resolve()
     })
   })
 })
 
-test('persistStore timeout 0 never bootstraps', t => {
-  return new Promise((resolve, reject) => {
+test('persistStore timeout 0 never bootstraps', () => {
+  return new Promise<void>((resolve, reject) => {
     let r1 = persistReducer({...config, storage: brokenStorage, timeout: 0}, reducer)
     const rootReducer = combineReducers({ r1 })
     const store = createStore(rootReducer)
     const persistor = persistStore(store, null, () => {
       console.log('resolve')
-      reject()     
+      reject()
     })
     setTimeout(() => {
-      t.is(persistor.getState().bootstrapped, false)
+      expect(persistor.getState().bootstrapped).toBe(false)
       resolve()
     }, 10)
   })
 })
 
 
-test('persistStore timeout forces bootstrap', t => {
-  return new Promise((resolve, reject) => {
+test('persistStore timeout forces bootstrap', () => {
+  return new Promise<void>((resolve, reject) => {
     let r1 = persistReducer({...config, storage: brokenStorage}, reducer)
     const rootReducer = combineReducers({ r1 })
     const store = createStore(rootReducer)
     const persistor = persistStore(store, null, () => {
-      t.is(persistor.getState().bootstrapped, true)
+      expect(persistor.getState().bootstrapped).toBe(true)
       resolve()
     })
     setTimeout(() => {

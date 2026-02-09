@@ -1,21 +1,20 @@
-// @flow
+import { Storage } from '../types'
 
-import type { Storage } from '../types'
-
-function noop() {}
-let noopStorage = {
+function noop(): void {}
+let noopStorage: Storage = {
   getItem: noop,
   setItem: noop,
   removeItem: noop,
 }
 
-function hasStorage(storageType) {
-  if (typeof self !== 'object' || !(storageType in self)) {
+function hasStorage(storageType: string): boolean {
+  const globalSelf = typeof self !== 'undefined' ? self : (typeof globalThis !== 'undefined' ? globalThis : {}) as any
+  if (typeof globalSelf !== 'object' || !(storageType in globalSelf)) {
     return false
   }
 
   try {
-    let storage = self[storageType]
+    let storage = globalSelf[storageType]
     const testKey = `redux-persist ${storageType} test`
     storage.setItem(testKey, 'test')
     storage.getItem(testKey)
@@ -32,7 +31,8 @@ function hasStorage(storageType) {
 
 export default function getStorage(type: string): Storage {
   const storageType = `${type}Storage`
-  if (hasStorage(storageType)) return self[storageType]
+  const globalSelf = typeof self !== 'undefined' ? self : (typeof globalThis !== 'undefined' ? globalThis : {}) as any
+  if (hasStorage(storageType)) return globalSelf[storageType]
   else {
     if (process.env.NODE_ENV !== 'production') {
       console.error(

@@ -1,6 +1,4 @@
-// @flow
-
-import test from 'ava'
+import { test, expect } from 'vitest'
 import sinon from 'sinon'
 
 import _ from 'lodash'
@@ -19,27 +17,27 @@ const config = {
   storage: createMemoryStorage()
 }
 
-test('persistedReducer does not automatically set _persist state', t => {
+test('persistedReducer does not automatically set _persist state', () => {
   let persistedReducer = persistReducer(config, reducer)
   let state = persistedReducer({}, {})
   console.log('state', state)
-  t.is(undefined, state._persist)
+  expect(state._persist).toBe(undefined)
 })
 
-test('persistedReducer does returns versioned, rehydrate tracked _persist state upon PERSIST', t => {
+test('persistedReducer does returns versioned, rehydrate tracked _persist state upon PERSIST', () => {
   let persistedReducer = persistReducer(config, reducer)
   let register = sinon.spy()
   let rehydrate = sinon.spy()
   let state = persistedReducer({}, { type: PERSIST, register, rehydrate })
-  t.deepEqual({ version: 1, rehydrated: false}, state._persist)
+  expect(state._persist).toEqual({ version: 1, rehydrated: false})
 })
 
-test('persistedReducer calls register and rehydrate after PERSIST', async (t) => {
+test('persistedReducer calls register and rehydrate after PERSIST', async () => {
   let persistedReducer = persistReducer(config, reducer)
   let register = sinon.spy()
   let rehydrate = sinon.spy()
   let state = persistedReducer({}, { type: PERSIST, register, rehydrate })
   await sleep(1)
-  t.is(register.callCount, 1)
-  t.is(rehydrate.callCount, 1)
+  expect(register.callCount).toBe(1)
+  expect(rehydrate.callCount).toBe(1)
 })

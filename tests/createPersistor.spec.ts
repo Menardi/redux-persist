@@ -1,6 +1,4 @@
-// @flow
-
-import test from 'ava'
+import { test, expect, beforeEach, afterEach } from 'vitest'
 import sinon from 'sinon'
 import { createMemoryStorage } from 'storage-memory'
 
@@ -14,49 +12,48 @@ const config = {
   debug: true
 }
 
-let spy;
-let clock;
+let spy: sinon.SinonSpy;
+let clock: sinon.SinonFakeTimers;
 
-test.beforeEach(() => {
+beforeEach(() => {
     spy = sinon.spy(memoryStorage, 'setItem')
     clock = sinon.useFakeTimers()
 });
 
-test.afterEach(() => {
+afterEach(() => {
     spy.restore()
     clock.restore()
 });
 
-// @NOTE these tests broke when updating sinon
-test.skip('it updates changed state', t => {
+test('it updates changed state', () => {
     const { update } = createPersistoid(config)
     update({ a: 1 })
     clock.tick(1);
     update({ a: 2 })
     clock.tick(1);
-    t.true(spy.calledTwice);
-    t.true(spy.withArgs('persist:persist-reducer-test', '{"a":"1"}').calledOnce);
-    t.true(spy.withArgs('persist:persist-reducer-test', '{"a":"2"}').calledOnce);
+    expect(spy.calledTwice).toBe(true);
+    expect(spy.withArgs('persist:persist-reducer-test', '{"a":"1"}').calledOnce).toBe(true);
+    expect(spy.withArgs('persist:persist-reducer-test', '{"a":"2"}').calledOnce).toBe(true);
 })
 
-test.skip('it does not update unchanged state', t => {
+test('it does not update unchanged state', () => {
     const { update } = createPersistoid(config)
     update({ a: undefined, b: 1 })
     clock.tick(1);
     // This update should not cause a write.
     update({ a: undefined, b: 1 })
     clock.tick(1);
-    t.true(spy.calledOnce);
-    t.true(spy.withArgs('persist:persist-reducer-test', '{"b":"1"}').calledOnce);
+    expect(spy.calledOnce).toBe(true);
+    expect(spy.withArgs('persist:persist-reducer-test', '{"b":"1"}').calledOnce).toBe(true);
 })
 
-test.skip('it updates removed keys', t => {
+test('it updates removed keys', () => {
     const { update } = createPersistoid(config)
     update({ a: undefined, b: 1 })
     clock.tick(1);
     update({ a: undefined, b: undefined })
     clock.tick(1);
-    t.true(spy.calledTwice);
-    t.true(spy.withArgs('persist:persist-reducer-test', '{"b":"1"}').calledOnce);
-    t.true(spy.withArgs('persist:persist-reducer-test', '{}').calledOnce);
+    expect(spy.calledTwice).toBe(true);
+    expect(spy.withArgs('persist:persist-reducer-test', '{"b":"1"}').calledOnce).toBe(true);
+    expect(spy.withArgs('persist:persist-reducer-test', '{}').calledOnce).toBe(true);
 })

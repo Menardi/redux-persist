@@ -1,10 +1,8 @@
-// @flow
-
-import type { PersistConfig } from './types'
+import { PersistConfig } from './types'
 
 import { KEY_PREFIX } from './constants'
 
-export default function purgeStoredState(config: PersistConfig) {
+export default function purgeStoredState(config: PersistConfig): Promise<any> {
   const storage = config.storage
   const storageKey = `${
     config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX
@@ -12,7 +10,7 @@ export default function purgeStoredState(config: PersistConfig) {
   return storage.removeItem(storageKey, warnIfRemoveError)
 }
 
-function warnIfRemoveError(err) {
+function warnIfRemoveError(err: any): void {
   if (err && process.env.NODE_ENV !== 'production') {
     console.error(
       'redux-persist/purgeStoredState: Error purging data stored state',

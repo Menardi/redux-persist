@@ -1,18 +1,12 @@
-// @flow
-
-import test from 'ava'
-import sinon from 'sinon'
+import { test, expect } from 'vitest'
 
 import _ from 'lodash'
-import configureStore from 'redux-mock-store'
 import { createStore } from 'redux'
 
 import getStoredState from '../src/getStoredState'
 import persistReducer from '../src/persistReducer'
 import persistStore from '../src/persistStore'
 import { createMemoryStorage } from 'storage-memory'
-import { PERSIST, REHYDRATE } from '../src/constants'
-import sleep from './utils/sleep'
 
 const INCREMENT = 'INCREMENT'
 
@@ -35,18 +29,19 @@ const config = {
   throttle: 1000,
 }
 
-test('state before flush is not updated, after flush is', t => {
-  return new Promise((resolve, reject) => {
+test('state before flush is not updated, after flush is', () => {
+  return new Promise<void>((resolve) => {
     let rootReducer = persistReducer(config, reducer)
     const store = createStore(rootReducer)
     const persistor = persistStore(store, {}, async () => {
       store.dispatch({ type: INCREMENT })
       const state = store.getState()
       let storedPreFlush = await getStoredState(config)
-      t.not(storedPreFlush && storedPreFlush.c, state.c)
+      expect(storedPreFlush && storedPreFlush.c).not.toBe(state.c)
       await persistor.flush()
       let storedPostFlush = await getStoredState(config)
-      resolve(t.is(storedPostFlush && storedPostFlush.c, state.c))
+      expect(storedPostFlush && storedPostFlush.c).toBe(state.c)
+      resolve()
     })
   })
 })

@@ -1,14 +1,12 @@
-// @flow
-
 export default {
     getItem(): Promise<void> {
-        return new Promise((resolve: Function, reject: Function) => {})
+        return new Promise(() => {})
     },
     setItem(): Promise<void> {
-        return new Promise((resolve: Function, reject: Function) => {})
+        return new Promise(() => {})
     },
     removeItem(): Promise<void> {
-        return new Promise((resolve: Function, reject: Function) => {})
+        return new Promise(() => {})
     }
   }
   

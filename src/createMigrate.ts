@@ -1,15 +1,13 @@
-// @flow
-
 import { DEFAULT_VERSION } from './constants'
 
-import type { PersistedState, MigrationManifest } from './types'
+import { PersistedState, MigrationManifest, PersistMigrate } from './types'
 
 export default function createMigrate(
   migrations: MigrationManifest,
   config?: { debug: boolean }
-) {
+): PersistMigrate {
   let { debug } = config || {}
-  return function(
+  return function (
     state: PersistedState,
     currentVersion: number
   ): Promise<PersistedState> {
@@ -42,7 +40,7 @@ export default function createMigrate(
     if (process.env.NODE_ENV !== 'production' && debug)
       console.log('redux-persist: migrationKeys', migrationKeys)
     try {
-      let migratedState = migrationKeys.reduce((state, versionKey) => {
+      let migratedState: PersistedState = migrationKeys.reduce((state: PersistedState, versionKey) => {
         if (process.env.NODE_ENV !== 'production' && debug)
           console.log(
             'redux-persist: running migration for versionKey',
