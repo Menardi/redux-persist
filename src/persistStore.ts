@@ -38,6 +38,8 @@ export default function persistStore(
     const bannedKeys = [
       'blacklist',
       'whitelist',
+      'blocklist',
+      'allowlist',
       'transforms',
       'storage',
       'keyPrefix',

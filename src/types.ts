@@ -36,8 +36,12 @@ export interface PersistConfig<S = any, RS = any, HSS = any, ESS = any> {
    * @deprecated keyPrefix is going to be removed in v6.
    */
   keyPrefix?: string
-  blacklist?: Array<string>
+  allowlist?: Array<string>
+  blocklist?: Array<string>
+  /** @deprecated Use `allowlist` instead */
   whitelist?: Array<string>
+  /** @deprecated Use `blocklist` instead */
+  blacklist?: Array<string>
   transforms?: Array<Transform<HSS, ESS, S, RS>>
   throttle?: number
   migrate?: PersistMigrate
@@ -116,7 +120,11 @@ export interface Transform<HSS = any, ESS = any, S = any, RS = any> {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface TransformConfig<HSS, ESS, S = any, RS = any> {
+  allowlist?: Array<keyof S>
+  blocklist?: Array<keyof S>
+  /** @deprecated Use `allowlist` instead */
   whitelist?: Array<keyof S>
+  /** @deprecated Use `blocklist` instead */
   blacklist?: Array<keyof S>
 }
 

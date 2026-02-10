@@ -143,13 +143,13 @@ export default function persistReducer<State>(
                 );
             }, timeout);
 
-          // @NOTE PERSIST resumes if paused.
+          /** PERSIST resumes if paused. */
           _paused = false;
 
-          // @NOTE only ever create persistoid once, ensure we call it at least once, even if _persist has already been set
+          /** only ever create persistoid once, ensure we call it at least once, even if _persist has already been set */
           if (!_persistoid) _persistoid = createPersistoid(config);
 
-          // @NOTE PERSIST can be called multiple times, noop after the first
+          /** PERSIST can be called multiple times, noop after the first */
           if (_persist) {
             // We still need to call the base reducer because there might be nested
             // uses of persistReducer which need to be aware of the PERSIST action
@@ -220,7 +220,7 @@ export default function persistReducer<State>(
               _persist: { ..._persist, rehydrated: true },
             } as State & PersistPartial;
 
-          // @NOTE if key does not match, will continue to default below
+          /** if key does not match, will continue to default below */
           if (action.key === config.key) {
             const reducedState = baseReducer(restState, action);
             const inboundState = action.payload;

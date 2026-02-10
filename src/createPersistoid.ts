@@ -4,9 +4,8 @@ import { Persistoid, PersistConfig } from './types';
 type IntervalID = ReturnType<typeof setInterval>;
 
 export default function createPersistoid(config: PersistConfig): Persistoid {
-  // defaults
-  const blacklist: Array<string> | null = config.blacklist || null;
-  const whitelist: Array<string> | null = config.whitelist || null;
+  const blocklist: Array<string> | null = config.blocklist || config.blacklist || null;
+  const allowlist: Array<string> | null = config.allowlist || config.whitelist || null;
   const transforms = config.transforms || [];
   const throttle = config.throttle || 0;
   const storageKey = `${
@@ -34,7 +33,7 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
   const update = (state: Record<string, any>): void => {
     // add any changed keys to the queue
     Object.keys(state).forEach(key => {
-      if (!passWhitelistBlacklist(key)) return; // is keyspace ignored? noop
+      if (!passesAllowBlocklists(key)) return; // is keyspace ignored? noop
       if (lastState[key] === state[key]) return; // value unchanged? noop
       if (keysToProcess.indexOf(key) !== -1) return; // is key already queued? noop
       keysToProcess.push(key); // add key to queue
@@ -45,7 +44,7 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
     Object.keys(lastState).forEach(key => {
       if (
         state[key] === undefined &&
-        passWhitelistBlacklist(key) &&
+        passesAllowBlocklists(key) &&
         keysToProcess.indexOf(key) === -1 &&
         lastState[key] !== undefined
       ) {
@@ -116,10 +115,10 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
       .catch(onWriteFail);
   }
 
-  function passWhitelistBlacklist(key: string): boolean {
-    if (whitelist && whitelist.indexOf(key) === -1 && key !== '_persist')
+  function passesAllowBlocklists(key: string): boolean {
+    if (allowlist && allowlist.indexOf(key) === -1 && key !== '_persist')
       return false;
-    if (blacklist && blacklist.indexOf(key) !== -1) return false;
+    if (blocklist && blocklist.indexOf(key) !== -1) return false;
     return true;
   }
 
@@ -138,14 +137,12 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
     return writePromise || Promise.resolve();
   };
 
-  // return `persistoid`
   return {
     update,
     flush,
   };
 }
 
-// @NOTE in the future this may be exposed via config
 function defaultSerialize(data: any): string {
   return JSON.stringify(data);
 }
