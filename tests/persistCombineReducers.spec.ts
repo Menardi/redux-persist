@@ -1,21 +1,23 @@
-import persistCombineReducers from '../src/persistCombineReducers'
-import { createMemoryStorage } from 'storage-memory'
+import { describe, test, expect } from 'vitest'
 
-import { test, expect } from 'vitest'
+import persistCombineReducers from '../src/persistCombineReducers'
+import { createInMemoryStorage } from './utils/inMemoryStorage'
 
 const config = {
   key: 'TestConfig',
-  storage: createMemoryStorage()
+  storage: createInMemoryStorage()
 }
 
-test('persistCombineReducers returns a function', () => {
-  let reducer = persistCombineReducers(config, {
-    foo: () => ({})
+describe('persistCombineReducers', () => {
+  test('returns a function', () => {
+    let reducer = persistCombineReducers(config, {
+      foo: () => ({})
+    })
+
+    expect(typeof reducer).toBe('function')
   })
 
-  expect(typeof reducer).toBe('function')
-})
+  test('merges two levels deep of state', () => {
 
-test.skip('persistCombineReducers merges two levels deep of state', () => {
-
+  })
 })

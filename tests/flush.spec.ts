@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 
 import _ from 'lodash'
 import { createStore } from 'redux'
@@ -6,7 +6,7 @@ import { createStore } from 'redux'
 import getStoredState from '../src/getStoredState'
 import persistReducer from '../src/persistReducer'
 import persistStore from '../src/persistStore'
-import { createMemoryStorage } from 'storage-memory'
+import { createInMemoryStorage } from './utils/inMemoryStorage'
 
 const INCREMENT = 'INCREMENT'
 
@@ -19,7 +19,7 @@ let reducer = (state = initialState, { type }) => {
   return state
 }
 
-const memoryStorage = createMemoryStorage()
+const memoryStorage = createInMemoryStorage()
 
 const config = {
   key: 'persist-reducer-test',
@@ -29,19 +29,21 @@ const config = {
   throttle: 1000,
 }
 
-test('state before flush is not updated, after flush is', () => {
-  return new Promise<void>((resolve) => {
-    let rootReducer = persistReducer(config, reducer)
-    const store = createStore(rootReducer)
-    const persistor = persistStore(store, {}, async () => {
-      store.dispatch({ type: INCREMENT })
-      const state = store.getState()
-      let storedPreFlush = await getStoredState(config)
-      expect(storedPreFlush && storedPreFlush.c).not.toBe(state.c)
-      await persistor.flush()
-      let storedPostFlush = await getStoredState(config)
-      expect(storedPostFlush && storedPostFlush.c).toBe(state.c)
-      resolve()
+describe('flush', () => {
+  test('state before flush is not updated, after flush is', () => {
+    return new Promise<void>((resolve) => {
+      let rootReducer = persistReducer(config, reducer)
+      const store = createStore(rootReducer)
+      const persistor = persistStore(store, {}, async () => {
+        store.dispatch({ type: INCREMENT })
+        const state = store.getState()
+        let storedPreFlush = await getStoredState(config)
+        expect(storedPreFlush && storedPreFlush.c).not.toBe(state.c)
+        await persistor.flush()
+        let storedPostFlush = await getStoredState(config)
+        expect(storedPostFlush && storedPostFlush.c).toBe(state.c)
+        resolve()
+      })
     })
   })
 })
