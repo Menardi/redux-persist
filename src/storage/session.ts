@@ -1,3 +1,3 @@
-import createWebStorage from './createWebStorage'
+import createWebStorage from './createWebStorage';
 
-export default createWebStorage('session')
+export default createWebStorage('session');

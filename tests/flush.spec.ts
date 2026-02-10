@@ -1,25 +1,24 @@
-import { describe, test, expect } from 'vitest'
+import { mapValues } from 'lodash';
+import { createStore } from 'redux';
+import { describe, test, expect } from 'vitest';
 
-import _ from 'lodash'
-import { createStore } from 'redux'
+import getStoredState from '../src/getStoredState';
+import persistReducer from '../src/persistReducer';
+import persistStore from '../src/persistStore';
+import { createInMemoryStorage } from './utils/inMemoryStorage';
 
-import getStoredState from '../src/getStoredState'
-import persistReducer from '../src/persistReducer'
-import persistStore from '../src/persistStore'
-import { createInMemoryStorage } from './utils/inMemoryStorage'
+const INCREMENT = 'INCREMENT';
 
-const INCREMENT = 'INCREMENT'
-
-const initialState = { a: 0, b: 10, c: 100}
-let reducer = (state = initialState, { type }) => {
-  console.log('action', type)
+const initialState = { a: 0, b: 10, c: 100};
+const reducer = (state = initialState, { type }) => {
+  console.log('action', type);
   if (type === INCREMENT) {
-    return _.mapValues(state, v => v + 1)
+    return mapValues(state, v => v + 1);
   }
-  return state
-}
+  return state;
+};
 
-const memoryStorage = createInMemoryStorage()
+const memoryStorage = createInMemoryStorage();
 
 const config = {
   key: 'persist-reducer-test',
@@ -27,23 +26,23 @@ const config = {
   storage: memoryStorage,
   debug: true,
   throttle: 1000,
-}
+};
 
 describe('flush', () => {
   test('state before flush is not updated, after flush is', () => {
     return new Promise<void>((resolve) => {
-      let rootReducer = persistReducer(config, reducer)
-      const store = createStore(rootReducer)
+      const rootReducer = persistReducer(config, reducer);
+      const store = createStore(rootReducer);
       const persistor = persistStore(store, {}, async () => {
-        store.dispatch({ type: INCREMENT })
-        const state = store.getState()
-        let storedPreFlush = await getStoredState(config)
-        expect(storedPreFlush && storedPreFlush.c).not.toBe(state.c)
-        await persistor.flush()
-        let storedPostFlush = await getStoredState(config)
-        expect(storedPostFlush && storedPostFlush.c).toBe(state.c)
-        resolve()
-      })
-    })
-  })
-})
+        store.dispatch({ type: INCREMENT });
+        const state = store.getState();
+        const storedPreFlush = await getStoredState(config);
+        expect(storedPreFlush && storedPreFlush.c).not.toBe(state.c);
+        await persistor.flush();
+        const storedPostFlush = await getStoredState(config);
+        expect(storedPostFlush && storedPostFlush.c).toBe(state.c);
+        resolve();
+      });
+    });
+  });
+});

@@ -1,4 +1,4 @@
-import { REHYDRATE, REGISTER } from './constants'
+import { REHYDRATE, REGISTER } from './constants';
 
 export interface PersistState {
   version: number
@@ -7,19 +7,19 @@ export interface PersistState {
 
 export type PersistedState = {
   _persist: PersistState
-} | undefined
+} | undefined;
 
 export type PersistMigrate = (
   state: PersistedState,
   currentVersion: number
-) => Promise<PersistedState>
+) => Promise<PersistedState>;
 
 export type StateReconciler<S> = (
   inboundState: any,
   state: S,
   reducedState: S,
   config: PersistConfig<S>
-) => S
+) => S;
 
 /**
  * @desc
@@ -94,7 +94,7 @@ export type TransformInbound<SS, ESS, S = any> = (
   subState: SS,
   key: keyof S,
   state: S
-) => ESS
+) => ESS;
 
 /**
  * @desc
@@ -106,7 +106,7 @@ export type TransformOutbound<SS, HSS, RS = any> = (
   state: SS,
   key: keyof RS,
   rawState: RS
-) => HSS
+) => HSS;
 
 export interface Transform<HSS = any, ESS = any, S = any, RS = any> {
   in: TransformInbound<HSS, ESS, S>
@@ -114,12 +114,13 @@ export interface Transform<HSS = any, ESS = any, S = any, RS = any> {
   config?: PersistConfig<S, RS, HSS, ESS>
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface TransformConfig<HSS, ESS, S = any, RS = any> {
   whitelist?: Array<keyof S>
   blacklist?: Array<keyof S>
 }
 
-export type RehydrateErrorType = any
+export type RehydrateErrorType = any;
 
 export interface RehydrateAction {
   type: typeof REHYDRATE
@@ -138,14 +139,14 @@ export interface RegisterAction {
   key: string
 }
 
-export type PersistorAction = RehydrateAction | RegisterAction
+export type PersistorAction = RehydrateAction | RegisterAction;
 
 export interface PersistorState {
   registry: Array<string>
   bootstrapped: boolean
 }
 
-export type PersistorSubscribeCallback = () => any
+export type PersistorSubscribeCallback = () => any;
 
 /**
  * A persistor is a redux store unto itself, allowing you to purge stored state, flush all

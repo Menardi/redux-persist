@@ -1,23 +1,23 @@
-import getStorage from './getStorage'
-import { WebStorage } from '../types'
+import getStorage from './getStorage';
+import type { WebStorage } from '../types';
 
 export default function createWebStorage(type: string): WebStorage {
-  let storage = getStorage(type)
+  const storage = getStorage(type);
   return {
     getItem: (key: string): Promise<string | null> => {
-      return new Promise((resolve, reject) => {
-        resolve(storage.getItem(key))
-      })
+      return new Promise((resolve) => {
+        resolve(storage.getItem(key));
+      });
     },
     setItem: (key: string, item: string): Promise<void> => {
-      return new Promise((resolve, reject) => {
-        resolve(storage.setItem(key, item))
-      })
+      return new Promise((resolve) => {
+        resolve(storage.setItem(key, item));
+      });
     },
     removeItem: (key: string): Promise<void> => {
-      return new Promise((resolve, reject) => {
-        resolve(storage.removeItem(key))
-      })
+      return new Promise((resolve) => {
+        resolve(storage.removeItem(key));
+      });
     },
-  }
+  };
 }

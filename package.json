@@ -32,36 +32,28 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "clean": "rimraf dist",
-    "prepare": "npm run build",
-    "precommit": "lint-staged",
+    "prepare": "husky",
+    "lint": "eslint",
     "test": "vitest run --silent=passed-only",
-    "test:watch": "vitest --silent=passed-only",
-    "typecheck": "tsc --noEmit",
-    "version": "npm run clean && npm run build && git add LIBSIZE.md"
-  },
-  "lint-staged": {
-    "src/**/*.ts": [
-      "git add"
-    ]
+    "typecheck": "tsc --noEmit"
   },
   "author": "",
   "license": "MIT",
   "homepage": "https://github.com/rt2zz/redux-persist#readme",
   "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.8.0",
     "@types/lodash": "^4.17.23",
     "@types/node": "^25.2.2",
-    "@types/prop-types": "^15.7.15",
-    "@types/react": "^16.14.69",
+    "@types/react": "^19.2.13",
     "@types/sinon": "^21.0.0",
-    "eslint": "^4.16.0",
-    "eslint-plugin-import": "^2.18.2",
-    "husky": "^0.14.3",
-    "lint-staged": "^6.1.0",
+    "eslint": "^9.39.2",
+    "eslint-plugin-import": "^2.32.0",
+    "husky": "^9.1.7",
     "lodash": "^4.17.15",
     "redux": "^5.0.1",
     "sinon": "^21.0.1",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.55.0",
     "vitest": "^4.0.18"
   },
   "peerDependencies": {
