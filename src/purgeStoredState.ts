@@ -3,9 +3,7 @@ import { PersistConfig } from './types';
 
 export default function purgeStoredState(config: PersistConfig): Promise<any> {
   const storage = config.storage;
-  const storageKey = `${
-    config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX
-  }${config.key}`;
+  const storageKey = `${KEY_PREFIX}${config.key}`;
   return storage.removeItem(storageKey, warnIfRemoveError);
 }
 

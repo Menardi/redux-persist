@@ -5,9 +5,7 @@ export default function getStoredState(
   config: PersistConfig,
 ): Promise<Record<string, any> | undefined> {
   const transforms = config.transforms || [];
-  const storageKey = `${
-    config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX
-  }${config.key}`;
+  const storageKey = `${KEY_PREFIX}${config.key}`;
   const storage = config.storage;
   const debug = config.debug;
   let deserialize: (serialized: string) => any;

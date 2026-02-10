@@ -8,9 +8,7 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
   const allowlist: Array<string> | null = config.allowlist || config.whitelist || null;
   const transforms = config.transforms || [];
   const throttle = config.throttle || 0;
-  const storageKey = `${
-    config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX
-  }${config.key}`;
+  const storageKey = `${KEY_PREFIX}${config.key}`;
   const storage = config.storage;
   let serialize: (state: any) => string;
   if (config.serialize === false) {

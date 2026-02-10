@@ -32,10 +32,6 @@ export interface PersistConfig<S = any, RS = any, HSS = any, ESS = any> {
   version?: number
   storage: Storage
   key: string
-  /**
-   * @deprecated keyPrefix is going to be removed in v6.
-   */
-  keyPrefix?: string
   allowlist?: Array<string>
   blocklist?: Array<string>
   /** @deprecated Use `allowlist` instead */
