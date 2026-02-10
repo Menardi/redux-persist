@@ -23,7 +23,6 @@ export type {
   WebStorage,
   MigrationManifest,
   RehydrateAction,
-  StateReconciler,
   PersistMigrate,
   PersistorOptions,
 } from './types';

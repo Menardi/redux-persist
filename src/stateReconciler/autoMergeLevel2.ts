@@ -1,12 +1,8 @@
-/*
-  autoMergeLevel2:
-    - merges 2 level of substate
-    - skips substate if already modified
-    - this is essentially redux-perist v4 behavior
-*/
-
 import type { PersistConfig } from '../types';
 
+/** autoMergeLevel2:
+ * - Merges 2 level of substate
+ * - Skips substate if already modified */
 export default function autoMergeLevel2<State extends Record<string, any>>(
   inboundState: State,
   originalState: State,

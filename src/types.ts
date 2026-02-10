@@ -45,10 +45,16 @@ export interface PersistConfig<S = any, RS = any, HSS = any, ESS = any> {
   transforms?: Array<Transform<HSS, ESS, S, RS>>
   throttle?: number
   migrate?: PersistMigrate
-  stateReconciler?: false | StateReconciler<S>
-  /**
-   * @desc Used for migrations.
+  /** How deeply should rehydration merge into the existing state?
+   *
+   *  1 - Overwrite existing reducers at the top level. If you later add new keys inside a reducer
+   *      with default values, they will be removed if they are not in the rehydrated state.
+   *
+   *  2 - (Default) Merge each incoming reducer into the initialised reducer. If you later add new
+   *      keys in side a reducer with default values, they will be merged into the rehydrated state.
    */
+  rehydrationDepth?: 1 | 2
+  /** Used for migrations */
   getStoredState?: (config: PersistConfig<S, RS, HSS, ESS>) => Promise<PersistedState>
   debug?: boolean
   serialize?: boolean | ((state: any) => string)

@@ -1,11 +1,8 @@
-/*
-  autoMergeLevel1:
-    - merges 1 level of substate
-    - skips substate if already modified
-*/
-
 import type { PersistConfig } from '../types';
 
+/** autoMergeLevel1
+ * - Merges 1 level of substate
+ * - Skips substate if already modified */
 export default function autoMergeLevel1<State extends Record<string, any>>(
   inboundState: State,
   originalState: State,

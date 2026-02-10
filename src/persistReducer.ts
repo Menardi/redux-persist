@@ -12,6 +12,7 @@ import createPersistoid from './createPersistoid';
 import defaultGetStoredState from './getStoredState';
 import purgeStoredState from './purgeStoredState';
 import autoMergeLevel1 from './stateReconciler/autoMergeLevel1';
+import autoMergeLevel2 from './stateReconciler/autoMergeLevel2';
 import {
   PersistConfig,
   PersistState,
@@ -80,12 +81,11 @@ export default function persistReducer<State>(
       );
   }
 
-  const version =
-    config.version !== undefined ? config.version : DEFAULT_VERSION;
-  const stateReconciler =
-    config.stateReconciler === undefined
-      ? autoMergeLevel1
-      : config.stateReconciler;
+  const version = config.version !== undefined ? config.version : DEFAULT_VERSION;
+
+  const rehydrationDepth = config.rehydrationDepth || 2;
+  const stateReconciler = rehydrationDepth === 1 ? autoMergeLevel1 : autoMergeLevel2;
+
   const getStoredState = config.getStoredState || defaultGetStoredState;
   const timeout =
     config.timeout !== undefined ? config.timeout : DEFAULT_TIMEOUT;
@@ -224,9 +224,9 @@ export default function persistReducer<State>(
           if (action.key === config.key) {
             const reducedState = baseReducer(restState, action);
             const inboundState = action.payload;
-            // only reconcile state if stateReconciler and inboundState are both defined
+            // only reconcile state if inboundState is defined
             const reconciledRest: State =
-              stateReconciler !== false && inboundState !== undefined
+              inboundState !== undefined
                 ? stateReconciler(inboundState, state as any, reducedState, config)
                 : reducedState;
 
