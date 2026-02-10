@@ -1,4 +1,4 @@
 Proxy package to enable
 ```js
-import { PersistGate } from 'redux-persist/integration/react'
+import { PersistGate } from '@menardi/redux-persist/integration/react'
 ```

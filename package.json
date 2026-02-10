@@ -1,37 +1,45 @@
 {
-  "name": "redux-persist",
+  "name": "@menardi/redux-persist",
   "version": "6.0.0",
-  "description": "persist and rehydrate redux stores",
+  "description": "Persist and rehydrate Redux stores",
+  "author": "Menardi",
+  "license": "MIT",
+  "homepage": "https://github.com/menardi/redux-persist#readme",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "repository": "rt2zz/redux-persist",
+  "repository": "menardi/redux-persist",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./integration/react": {
-      "import": "./dist/integration/react.js",
-      "types": "./dist/integration/react.d.ts"
+      "types": "./dist/integration/react.d.ts",
+      "import": "./dist/integration/react.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "integration/react": [
+        "dist/integration/react.d.ts"
+      ]
     }
   },
   "files": [
     "dist",
-    "src",
     "README.md"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "clean": "rimraf dist",
     "prepare": "husky",
+    "prepublishOnly": "npm run build",
     "lint": "eslint",
     "test": "vitest run --silent=passed-only",
     "typecheck": "tsc --noEmit"
   },
-  "author": "",
-  "license": "MIT",
-  "homepage": "https://github.com/rt2zz/redux-persist#readme",
   "devDependencies": {
     "@reduxjs/toolkit": "^2.11.2",
     "@stylistic/eslint-plugin": "^5.8.0",
@@ -44,6 +52,7 @@
     "husky": "^9.1.7",
     "lodash": "^4.17.15",
     "redux": "^5.0.1",
+    "rimraf": "^6.1.2",
     "sinon": "^21.0.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.55.0",
