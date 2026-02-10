@@ -12,14 +12,6 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./storage": {
-      "import": "./dist/storage/index.js",
-      "types": "./dist/storage/index.d.ts"
-    },
-    "./storage/session": {
-      "import": "./dist/storage/session.js",
-      "types": "./dist/storage/session.d.ts"
-    },
     "./integration/react": {
       "import": "./dist/integration/react.js",
       "types": "./dist/integration/react.d.ts"
