@@ -5,4 +5,5 @@ export const PAUSE = 'persist/PAUSE' as const;
 export const PERSIST = 'persist/PERSIST' as const;
 export const PURGE = 'persist/PURGE' as const;
 export const REGISTER = 'persist/REGISTER' as const;
+export const ALL_PERSIST_ACTIONS = [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER];
 export const DEFAULT_VERSION = -1;
