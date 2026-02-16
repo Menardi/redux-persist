@@ -170,6 +170,28 @@ const persistedReducer = persistReducer({
 }, rootReducer);
 ```
 
+### Browser
+
+#### localStorage
+
+> [!IMPORTANT]
+> If you're using redux-persist in a hybrid mobile app (like Capacitor or Cordova), do not use localStorage.
+> The iOS system treats localStorage like a cache that can be cleared, so data can be lost unexpectedly.
+> For hybrid apps, use a native storage option, like `@capacitor/preferences` above.
+
+localStorage already provides the exact functions needed, and so can be passed directly to `persistReducer` as is.
+
+```ts
+const rootReducer = combineReducers({
+  // your reducers here
+});
+
+const persistedReducer = persistReducer({
+  key: 'root',
+  storage: localStorage,
+}, rootReducer);
+```
+
 ## Allowlist and Blocklist
 
 To block specific reducers from being persisted, add them to the `blocklist` config array. If you want to only persist specific reducers, you can use the `allowlist` config option.

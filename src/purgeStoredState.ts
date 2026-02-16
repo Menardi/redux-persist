@@ -4,7 +4,7 @@ import { PersistConfig } from './types';
 export default function purgeStoredState(config: PersistConfig): Promise<any> {
   const storage = config.storage;
   const storageKey = `${KEY_PREFIX}${config.key}`;
-  return storage.removeItem(storageKey, warnIfRemoveError);
+  return new Promise(resolve => resolve(storage.removeItem(storageKey, warnIfRemoveError)));
 }
 
 function warnIfRemoveError(err: any): void {

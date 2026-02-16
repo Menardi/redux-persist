@@ -108,8 +108,9 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
       }
     });
 
-    writePromise = storage
-      .setItem(storageKey, serialize(stagedState))
+    // Wrap in promise to allow for synchronous `setItem` calls. We create a new Promise rather than
+    // just using `Promise.resolve` so errors on synchronous writes are thrown correctly.
+    writePromise = new Promise(resolve => resolve(storage.setItem(storageKey, serialize(stagedState))))
       .catch(onWriteFail);
   }
 

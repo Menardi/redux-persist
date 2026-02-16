@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Added support for using synchronous storage directly without a wrapper
+
 ## [7.0.0] - 2026-02-10
 
 This is the first version of `@menardi/redux-persist`, forked from `redux-persist@6.0.0`.
