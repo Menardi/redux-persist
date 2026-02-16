@@ -68,9 +68,9 @@ const DEFAULT_TIMEOUT = 5000;
   - persisting a reducer which has nested _persist
   - handling actions that fire before reydrate is called
 */
-export default function persistReducer<State>(
+export default function persistReducer<State, PreloadedState = State>(
   config: PersistConfig<State>,
-  baseReducer: Reducer<State, any>,
+  baseReducer: Reducer<State, any, PreloadedState>,
 ): Reducer<State & PersistPartial, any> {
   if (process.env.NODE_ENV !== 'production') {
     if (!config) throw new Error('config is required for persistReducer');

@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed non-toolkit reducers being typed as `never`
+
 ## [7.0.1] - 2026-02-16
 
 ### Added
