@@ -112,9 +112,9 @@ export interface PersistorOptions {
 }
 
 export interface Storage {
-  getItem(key: string, ...args: Array<any>): any;
-  setItem(key: string, value: any, ...args: Array<any>): any;
-  removeItem(key: string, ...args: Array<any>): any;
+  getItem(key: string): any;
+  setItem(key: string, value: any): any;
+  removeItem(key: string): any;
 }
 
 export interface MigrationManifest {
