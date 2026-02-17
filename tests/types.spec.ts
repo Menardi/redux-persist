@@ -62,9 +62,15 @@ describe('Typescript types', () => {
       [rtkSlice.name]: rtkSlice.reducer,
     });
 
-    const persistedReducer = persistReducer({
+    const persistedReducer = persistReducer<ReturnType<typeof rootReducer>>({
       key: 'root',
       storage,
+      transforms: [{
+        reducerName: 'plain',
+        onBeforePersist: (state) => {
+          return state;
+        },
+      }],
     }, rootReducer);
 
     const store = configureStore({

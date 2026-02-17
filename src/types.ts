@@ -18,27 +18,26 @@ export type StateReconciler<S> = (
   inboundState: any,
   state: S,
   reducedState: S,
-  config: PersistConfig<S>
+  config: PersistConfig
 ) => S;
 
-/**
- * @desc
- * `HSS` means HydratedSubState
- * `ESS` means EndSubState
- * `S` means State
- * `RS` means RawState
- */
-export interface PersistConfig<S = any, RS = any, HSS = any, ESS = any> {
+export interface PersistConfig {
   version?: number
   storage: Storage
   key: string
-  allowlist?: Array<string>
-  blocklist?: Array<string>
+  allowlist?: string[]
+  blocklist?: string[]
   /** @deprecated Use `allowlist` instead */
-  whitelist?: Array<string>
+  whitelist?: string[]
   /** @deprecated Use `blocklist` instead */
-  blacklist?: Array<string>
-  transforms?: Array<Transform<HSS, ESS, S, RS>>
+  blacklist?: string[]
+  /** Transform data per reducer before it is persisted, and before it is hydrated. Use the
+   *  `createTransform` function to create type-safe transforms rather than passing them directly. */
+  transforms?: {
+    reducerName: string;
+    onBeforeRehydrate?: (state: any) => any;
+    onBeforePersist?: (state: any) => any;
+  }[]
   throttle?: number
   migrate?: PersistMigrate
   /** How deeply should rehydration merge into the existing state?
@@ -50,8 +49,6 @@ export interface PersistConfig<S = any, RS = any, HSS = any, ESS = any> {
    *      keys in side a reducer with default values, they will be merged into the rehydrated state.
    */
   rehydrationDepth?: 1 | 2
-  /** Used for migrations */
-  getStoredState?: (config: PersistConfig<S, RS, HSS, ESS>) => Promise<PersistedState>
   debug?: boolean
   serialize?: boolean | ((state: any) => string)
   deserialize?: boolean | ((serialized: string) => any)
@@ -88,46 +85,6 @@ export interface WebStorage extends Storage {
 
 export interface MigrationManifest {
   [key: string]: (state: PersistedState) => PersistedState
-}
-
-/**
- * @desc
- * `SS` means SubState
- * `ESS` means EndSubState
- * `S` means State
- */
-export type TransformInbound<SS, ESS, S = any> = (
-  subState: SS,
-  key: keyof S,
-  state: S
-) => ESS;
-
-/**
- * @desc
- * `SS` means SubState
- * `HSS` means HydratedSubState
- * `RS` means RawState
- */
-export type TransformOutbound<SS, HSS, RS = any> = (
-  state: SS,
-  key: keyof RS,
-  rawState: RS
-) => HSS;
-
-export interface Transform<HSS = any, ESS = any, S = any, RS = any> {
-  in: TransformInbound<HSS, ESS, S>
-  out: TransformOutbound<ESS, HSS, RS>
-  config?: PersistConfig<S, RS, HSS, ESS>
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface TransformConfig<HSS, ESS, S = any, RS = any> {
-  allowlist?: Array<keyof S>
-  blocklist?: Array<keyof S>
-  /** @deprecated Use `allowlist` instead */
-  whitelist?: Array<keyof S>
-  /** @deprecated Use `blocklist` instead */
-  blacklist?: Array<keyof S>
 }
 
 export type RehydrateErrorType = any;

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking**: `createTransform` now takes an object argument to allow for stronger typing, and to make it more clear when each transform is called
+
 ### Fixed
 
 - Fixed non-toolkit reducers being typed as `never`

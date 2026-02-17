@@ -1,4 +1,5 @@
 import { KEY_PREFIX } from './constants';
+import { runTransforms } from './transforms';
 import { PersistConfig } from './types';
 
 export default async function getStoredState(
@@ -24,9 +25,12 @@ export default async function getStoredState(
     const state: Record<string, any> = {};
     const rawState = deserialize(serialized);
     Object.keys(rawState).forEach(key => {
-      state[key] = transforms.reduceRight((subState, transformer) => {
-        return transformer.out(subState, key, rawState);
-      }, deserialize(rawState[key]));
+      state[key] = runTransforms({
+        allTransforms: transforms,
+        direction: 'beforeHydrate',
+        reducerName: key,
+        state: deserialize(rawState[key]),
+      });
     });
     return state;
   } catch (err) {

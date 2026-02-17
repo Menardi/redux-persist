@@ -1,6 +1,6 @@
 import { mapValues } from 'lodash';
 import { createStore } from 'redux';
-import { describe, test, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import getStoredState from '../src/getStoredState';
 import persistReducer from '../src/persistReducer';
@@ -11,26 +11,25 @@ const INCREMENT = 'INCREMENT';
 
 const initialState = { a: 0, b: 10, c: 100};
 const reducer = (state = initialState, { type }) => {
-  console.log('action', type);
   if (type === INCREMENT) {
     return mapValues(state, v => v + 1);
   }
   return state;
 };
 
-const memoryStorage = createInMemoryStorage();
-
-const config = {
-  key: 'persist-reducer-test',
-  version: 1,
-  storage: memoryStorage,
-  debug: true,
-  throttle: 1000,
-};
-
 describe('flush', () => {
-  test('state before flush is not updated, after flush is', () => {
+  it('state before flush is not updated, after flush is', () => {
     return new Promise<void>((resolve) => {
+      const memoryStorage = createInMemoryStorage();
+
+      const config = {
+        key: 'persist-reducer-test',
+        version: 1,
+        storage: memoryStorage,
+        debug: true,
+        throttle: 1000,
+      };
+
       const rootReducer = persistReducer(config, reducer);
       const store = createStore(rootReducer);
       const persistor = persistStore(store, {}, async () => {

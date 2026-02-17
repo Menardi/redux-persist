@@ -1,4 +1,5 @@
 import { KEY_PREFIX } from './constants';
+import { runTransforms } from './transforms';
 import { Persistoid, PersistConfig } from './types';
 
 type IntervalID = ReturnType<typeof setInterval>;
@@ -26,7 +27,6 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
   const keysToProcess: Array<string> = [];
   let timeIterator: IntervalID | null = null;
   let writePromise: Promise<any> | null = null;
-  let transformError: Error | null = null;
 
   const update = (state: Record<string, any>): void => {
     // add any changed keys to the queue
@@ -66,30 +66,25 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
     }
 
     const key = keysToProcess.shift()!;
-    const endState = transforms.reduce((subState, transformer) => {
-      try {
-        return transformer.in(subState, key, lastState);
-      } catch (err) {
-        transformError = err as Error;
-        return lastState;
-      }
-    }, lastState[key]);
+    const transformedState = runTransforms({
+      state: lastState[key],
+      reducerName: key,
+      direction: 'beforePersist',
+      allTransforms: transforms,
+    });
 
-    if (transformError instanceof Error) {
-      throw transformError;
-    }
-
-    if (endState !== undefined) {
+    if (transformedState !== undefined) {
       try {
-        stagedState[key] = serialize(endState);
+        stagedState[key] = serialize(transformedState);
       } catch (err) {
         console.error(
           'redux-persist/createPersistoid: error serializing state',
           err,
         );
+        throw err;
       }
     } else {
-      //if the endState is undefined, no need to persist the existing serialized content
+      //if the transformedState is undefined, no need to persist the existing serialized content
       delete stagedState[key];
     }
 
@@ -99,8 +94,6 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
   }
 
   function writeStagedState(): void {
-    if (transformError) return;
-
     // cleanup any removed keys just before write.
     Object.keys(stagedState).forEach(key => {
       if (lastState[key] === undefined) {
@@ -115,14 +108,12 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
   }
 
   function passesAllowBlocklists(key: string): boolean {
-    if (allowlist && allowlist.indexOf(key) === -1 && key !== '_persist')
-      return false;
+    if (allowlist && allowlist.indexOf(key) === -1 && key !== '_persist') return false;
     if (blocklist && blocklist.indexOf(key) !== -1) return false;
     return true;
   }
 
   function onWriteFail(err: Error): void {
-    // @TODO add fail handlers (typically storage full)
     if (writeFailHandler) writeFailHandler(err);
     if (err && process.env.NODE_ENV !== 'production') {
       console.error('Error storing data', err);

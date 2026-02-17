@@ -9,7 +9,7 @@ import {
   DEFAULT_VERSION,
 } from './constants';
 import createPersistoid from './createPersistoid';
-import defaultGetStoredState from './getStoredState';
+import getStoredState from './getStoredState';
 import purgeStoredState from './purgeStoredState';
 import autoMergeLevel1 from './stateReconciler/autoMergeLevel1';
 import autoMergeLevel2 from './stateReconciler/autoMergeLevel2';
@@ -69,7 +69,7 @@ const DEFAULT_TIMEOUT = 5000;
   - handling actions that fire before reydrate is called
 */
 export default function persistReducer<State, PreloadedState = State>(
-  config: PersistConfig<State>,
+  config: PersistConfig,
   baseReducer: Reducer<State, any, PreloadedState>,
 ): Reducer<State & PersistPartial, any> {
   if (process.env.NODE_ENV !== 'production') {
@@ -86,9 +86,7 @@ export default function persistReducer<State, PreloadedState = State>(
   const rehydrationDepth = config.rehydrationDepth || 2;
   const stateReconciler = rehydrationDepth === 1 ? autoMergeLevel1 : autoMergeLevel2;
 
-  const getStoredState = config.getStoredState || defaultGetStoredState;
-  const timeout =
-    config.timeout !== undefined ? config.timeout : DEFAULT_TIMEOUT;
+  const timeout = config.timeout !== undefined ? config.timeout : DEFAULT_TIMEOUT;
   let _persistoid: Persistoid | null = null;
   let _purge = false;
   let _paused = true;
@@ -162,10 +160,11 @@ export default function persistReducer<State, PreloadedState = State>(
           if (
             typeof action.rehydrate !== 'function' ||
             typeof action.register !== 'function'
-          )
+          ) {
             throw new Error(
-              'redux-persist: either rehydrate or register is not a function on the PERSIST action. This can happen if the action is being replayed. This is an unexplored use case, please open an issue and we will figure out a resolution.',
+              'redux-persist: either rehydrate or register is not a function on the PERSIST action. This can happen if the action is being replayed.',
             );
+          }
 
           action.register(config.key);
 

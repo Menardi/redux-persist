@@ -1,24 +1,26 @@
 import { spy, useFakeTimers } from 'sinon';
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
+import { describe, expect, beforeEach, afterEach, it } from 'vitest';
 
 import createPersistoid from '../src/createPersistoid';
 import { createInMemoryStorage } from './utils/inMemoryStorage';
-
-const memoryStorage = createInMemoryStorage();
-
-const config = {
-  key: 'persist-reducer-test',
-  version: 1,
-  storage: memoryStorage,
-  debug: true,
-};
+import { PersistConfig } from '../src/types';
 
 describe('createPersistoid', () => {
   let setItemSpy: sinon.SinonSpy;
   let clock: sinon.SinonFakeTimers;
+  let config: PersistConfig;
 
   beforeEach(() => {
+    const memoryStorage = createInMemoryStorage();
     setItemSpy = spy(memoryStorage, 'setItem');
+
+    config = {
+      key: 'persist-reducer-test',
+      version: 1,
+      storage: memoryStorage,
+      debug: true,
+    };
+
     clock = useFakeTimers();
   });
 
@@ -27,7 +29,7 @@ describe('createPersistoid', () => {
     clock.restore();
   });
 
-  test('updates changed state', () => {
+  it('updates changed state', () => {
     const { update } = createPersistoid(config);
     update({ a: 1 });
     clock.tick(1);
@@ -38,7 +40,7 @@ describe('createPersistoid', () => {
     expect(setItemSpy.withArgs('persist:persist-reducer-test', '{"a":"2"}').calledOnce).toBe(true);
   });
 
-  test('does not update unchanged state', () => {
+  it('does not update unchanged state', () => {
     const { update } = createPersistoid(config);
     update({ a: undefined, b: 1 });
     clock.tick(1);
@@ -49,7 +51,7 @@ describe('createPersistoid', () => {
     expect(setItemSpy.withArgs('persist:persist-reducer-test', '{"b":"1"}').calledOnce).toBe(true);
   });
 
-  test('updates removed keys', () => {
+  it('updates removed keys', () => {
     const { update } = createPersistoid(config);
     update({ a: undefined, b: 1 });
     clock.tick(1);
@@ -60,27 +62,25 @@ describe('createPersistoid', () => {
     expect(setItemSpy.withArgs('persist:persist-reducer-test', '{}').calledOnce).toBe(true);
   });
 
-  test('throws when a transform errors', () => {
-    const errorTransform = {
-      in: () => { throw new Error('transform error'); },
-      out: (s: any) => s,
-    };
+  it('throws when a transform errors', () => {
     const { update } = createPersistoid({
       ...config,
-      transforms: [errorTransform],
+      transforms: [{
+        reducerName: 'a' as const,
+        onBeforePersist: () => { throw new Error('transform error'); },
+      }],
     });
     update({ a: 1 });
     expect(() => clock.tick(1)).toThrow('transform error');
   });
 
-  test('does not write to storage after a transform error', () => {
-    const errorTransform = {
-      in: () => { throw new Error('transform error'); },
-      out: (s: any) => s,
-    };
+  it('does not write to storage after a transform error', () => {
     const { update } = createPersistoid({
       ...config,
-      transforms: [errorTransform],
+      transforms: [{
+        reducerName: 'a' as const,
+        onBeforePersist: () => { throw new Error('transform error'); },
+      }],
     });
     update({ a: 1 });
     try { clock.tick(1); } catch { /* expected */ }
