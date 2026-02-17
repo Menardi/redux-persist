@@ -2,6 +2,7 @@ import { Store, createStore, AnyAction } from 'redux';
 
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE } from './constants';
 import type { Persistor, PersistorOptions, PersistorState, RehydrateAction, PersistorAction } from './types';
+import { logger } from './utils';
 
 type BoostrappedCb = () => any;
 
@@ -47,7 +48,7 @@ export default function persistStore(
     ];
     bannedKeys.forEach(k => {
       if (!!optionsToTest[k]) {
-        console.error(
+        logger.error(
           `redux-persist: invalid option passed to persistStore: "${k}". You may be incorrectly passing persistConfig into persistStore, whereas it should be passed into persistReducer.`,
         );
       }

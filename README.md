@@ -247,7 +247,7 @@ const persistedReducer = persistReducer({
   key: 'root',
   version: 1,
   storage: MyStorage,
-  migrate: createMigrate(migrations, { debug: false }),
+  migrate: createMigrate(migrations),
 }, rootReducer);
 
 ...

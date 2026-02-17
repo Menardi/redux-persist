@@ -1,20 +1,16 @@
 import { DEFAULT_VERSION } from './constants';
 import { PersistedState, MigrationManifest, PersistMigrate } from './types';
+import { logger } from './utils';
 
 export default function createMigrate(
   migrations: MigrationManifest,
-  config?: { debug: boolean },
 ): PersistMigrate {
-  const { debug } = config || {};
   return function (
     state: PersistedState,
     currentVersion: number,
   ): Promise<PersistedState> {
     if (!state) {
-      if (process.env.NODE_ENV !== 'production' && debug) {
-        console.log('redux-persist: no inbound state, skipping migration');
-      }
-
+      logger.debug('createMigrate: No inbound state, skipping migration');
       return Promise.resolve(undefined);
     }
 
@@ -22,19 +18,14 @@ export default function createMigrate(
       state._persist && state._persist.version !== undefined
         ? state._persist.version
         : DEFAULT_VERSION;
-    if (inboundVersion === currentVersion) {
-      if (process.env.NODE_ENV !== 'production' && debug) {
-        console.log('redux-persist: versions match, noop migration');
-      }
 
+    if (inboundVersion === currentVersion) {
+      logger.debug('createMigrate: Versions match, noop migration');
       return Promise.resolve(state);
     }
 
     if (inboundVersion > currentVersion) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.error('redux-persist: downgrading version is not supported');
-      }
-
+      logger.error('Downgrading version is not supported');
       return Promise.resolve(state);
     }
 
@@ -43,19 +34,9 @@ export default function createMigrate(
       .filter(key => currentVersion >= key && key > inboundVersion)
       .sort((a, b) => a - b);
 
-    if (process.env.NODE_ENV !== 'production' && debug) {
-      console.log('redux-persist: migrationKeys', migrationKeys);
-    }
-
     try {
       const migratedState: PersistedState = migrationKeys.reduce((state: PersistedState, versionKey) => {
-        if (process.env.NODE_ENV !== 'production' && debug) {
-          console.log(
-            'redux-persist: running migration for versionKey',
-            versionKey,
-          );
-        }
-
+        logger.log(`Running migration for version ${versionKey}`);
         return migrations[versionKey](state);
       }, state);
       return Promise.resolve(migratedState);

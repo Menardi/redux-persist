@@ -1,6 +1,7 @@
 import { KEY_PREFIX } from './constants';
 import { runTransforms } from './transforms';
 import { PersistConfig } from './types';
+import { logger } from './utils';
 
 export default async function getStoredState(
   config: PersistConfig,
@@ -8,7 +9,7 @@ export default async function getStoredState(
   const transforms = config.transforms || [];
   const storageKey = `${KEY_PREFIX}${config.key}`;
   const storage = config.storage;
-  const debug = config.debug;
+
   let deserialize: (serialized: string) => any;
   if (config.deserialize === false) {
     deserialize = (x: any) => x;
@@ -24,6 +25,7 @@ export default async function getStoredState(
   try {
     const state: Record<string, any> = {};
     const rawState = deserialize(serialized);
+
     Object.keys(rawState).forEach(key => {
       state[key] = runTransforms({
         allTransforms: transforms,
@@ -32,15 +34,10 @@ export default async function getStoredState(
         state: deserialize(rawState[key]),
       });
     });
+
     return state;
   } catch (err) {
-    if (process.env.NODE_ENV !== 'production' && debug) {
-      console.log(
-        `redux-persist/getStoredState: Error restoring data ${serialized}`,
-        err,
-      );
-    }
-
+    logger.log(`getStoredState: Error restoring data ${serialized}`, err);
     throw err;
   }
 }

@@ -27,7 +27,6 @@ describe('flush', () => {
         key: 'persist-reducer-test',
         version: 1,
         storage: memoryStorage,
-        debug: true,
         throttle: 1000,
       };
 

@@ -18,7 +18,6 @@ describe('createPersistoid', () => {
       key: 'persist-reducer-test',
       version: 1,
       storage: memoryStorage,
-      debug: true,
     };
 
     clock = useFakeTimers();

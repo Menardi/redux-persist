@@ -10,6 +10,10 @@
 
 - Fixed non-toolkit reducers being typed as `never`
 
+### Removed
+
+- Removed `debug` config option, which was being used inconsistently internally
+
 ## [7.0.1] - 2026-02-16
 
 ### Added

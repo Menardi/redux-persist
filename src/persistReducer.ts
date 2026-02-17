@@ -18,6 +18,7 @@ import {
   PersistState,
   Persistoid,
 } from './types';
+import { logger } from './utils';
 
 type PersistPartial = { _persist: PersistState };
 
@@ -110,11 +111,9 @@ export default function persistReducer<State, PreloadedState = State>(
           let _sealed = false;
           const _rehydrate = (payload: any, err?: any): void => {
             // dev warning if we are already sealed
-            if (process.env.NODE_ENV !== 'production' && _sealed) {
-              console.error(
-                `redux-persist: rehydrate for "${
-                  config.key
-                }" called after timeout.`,
+            if (_sealed) {
+              logger.error(
+                `rehydrate for "${config.key}" called after timeout.`,
                 payload,
                 err,
               );
@@ -122,7 +121,7 @@ export default function persistReducer<State, PreloadedState = State>(
 
             // only rehydrate if we are not already sealed
             if (err) {
-              console.error('redux-persist: Not rehydrating due to', err);
+              logger.error('Not rehydrating due to', err);
               _paused = true; // stop any further redux-persist processing
               setTimeout(() => config.onError?.(err)); // wrapped in setTimeout to ensure it breaks out of the promise
             } else if (!_sealed) {
@@ -136,11 +135,7 @@ export default function persistReducer<State, PreloadedState = State>(
               !_sealed &&
                 _rehydrate(
                   undefined,
-                  new Error(
-                    `redux-persist: persist timed out for persist key "${
-                      config.key
-                    }"`,
-                  ),
+                  new Error(`redux-persist: Persist timed out for persist key "${config.key}"`),
                 );
             }, timeout);
 
@@ -179,8 +174,8 @@ export default function persistReducer<State, PreloadedState = State>(
                   _rehydrate(migratedState);
                 },
                 migrateErr => {
-                  if (process.env.NODE_ENV !== 'production' && migrateErr) {
-                    console.error('redux-persist: migration error', migrateErr);
+                  if (migrateErr) {
+                    logger.error('migration error', migrateErr);
                   }
 
                   _rehydrate(undefined, migrateErr);
@@ -232,7 +227,7 @@ export default function persistReducer<State, PreloadedState = State>(
             // only reconcile state if inboundState is defined
             const reconciledRest: State =
               inboundState !== undefined
-                ? stateReconciler(inboundState, state as any, reducedState, config)
+                ? stateReconciler(inboundState, state as any, reducedState)
                 : reducedState;
 
             const newState = {

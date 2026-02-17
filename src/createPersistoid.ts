@@ -1,6 +1,7 @@
 import { KEY_PREFIX } from './constants';
 import { runTransforms } from './transforms';
 import { Persistoid, PersistConfig } from './types';
+import { logger } from './utils';
 
 type IntervalID = ReturnType<typeof setInterval>;
 
@@ -78,10 +79,7 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
       try {
         stagedState[key] = serialize(transformedState);
       } catch (err) {
-        console.error(
-          'redux-persist/createPersistoid: error serializing state',
-          err,
-        );
+        logger.error('createPersistoid: error serializing state', err);
         throw err;
       }
     } else {
@@ -116,8 +114,8 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
 
   function onWriteFail(err: Error): void {
     if (writeFailHandler) writeFailHandler(err);
-    if (err && process.env.NODE_ENV !== 'production') {
-      console.error('Error storing data', err);
+    if (err) {
+      logger.error('Error writing data to storage', err);
     }
   }
 

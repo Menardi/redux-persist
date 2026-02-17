@@ -10,7 +10,6 @@ const config = {
   key: 'allowblock-test',
   version: 1,
   storage: memoryStorage,
-  debug: true,
 };
 
 describe('allowlist / blocklist', () => {

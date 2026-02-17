@@ -14,7 +14,6 @@ const config = {
   key: 'persist-reducer-test',
   version: 1,
   storage: createInMemoryStorage(),
-  debug: true,
   timeout: 5,
 };
 
@@ -38,7 +37,6 @@ describe('complete integration', () => {
       const rootReducer = combineReducers({ r1 });
       const store = createStore(rootReducer);
       const persistor = persistStore(store, null, () => {
-        console.log('resolve');
         reject();
       });
       setTimeout(() => {
@@ -58,7 +56,7 @@ describe('complete integration', () => {
       setTimeout(() => {
         expect(persistor.getState().bootstrapped).toBe(false);
         expect(onError.callCount).toBe(1);
-        expect(onError.firstCall.args[0].message).toContain('persist timed out');
+        expect(onError.firstCall.args[0].message).toContain('Persist timed out');
         resolve();
       }, 10);
     });

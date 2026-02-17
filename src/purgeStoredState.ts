@@ -1,5 +1,6 @@
 import { KEY_PREFIX } from './constants';
 import { PersistConfig } from './types';
+import { logger } from './utils';
 
 export default function purgeStoredState(config: PersistConfig): Promise<any> {
   const storage = config.storage;
@@ -8,10 +9,7 @@ export default function purgeStoredState(config: PersistConfig): Promise<any> {
 }
 
 function warnIfRemoveError(err: any): void {
-  if (err && process.env.NODE_ENV !== 'production') {
-    console.error(
-      'redux-persist/purgeStoredState: Error purging data stored state',
-      err,
-    );
+  if (err) {
+    logger.error('purgeStoredState: Error purging data stored state', err);
   }
 }

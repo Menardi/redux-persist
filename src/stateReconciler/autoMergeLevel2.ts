@@ -1,4 +1,4 @@
-import type { PersistConfig } from '../types';
+import { logger } from '../utils';
 
 /** autoMergeLevel2:
  * - Merges 2 level of substate
@@ -7,7 +7,6 @@ export default function autoMergeLevel2<State extends Record<string, any>>(
   inboundState: State,
   originalState: State,
   reducedState: State,
-  { debug }: PersistConfig,
 ): State {
   const newState = { ...reducedState } as any;
   // only rehydrate if inboundState exists and is an object
@@ -17,13 +16,7 @@ export default function autoMergeLevel2<State extends Record<string, any>>(
       if (key === '_persist') return;
       // if reducer modifies substate, skip auto rehydration
       if (originalState[key] !== reducedState[key]) {
-        if (process.env.NODE_ENV !== 'production' && debug) {
-          console.log(
-            'redux-persist/stateReconciler: sub state for key `%s` modified, skipping.',
-            key,
-          );
-        }
-
+        logger.debug(`autoMergeLevel2: sub state for key \`${key}\` modified, skipping.`);
         return;
       }
 
@@ -38,17 +31,8 @@ export default function autoMergeLevel2<State extends Record<string, any>>(
     });
   }
 
-  if (
-    process.env.NODE_ENV !== 'production' &&
-    debug &&
-    inboundState &&
-    typeof inboundState === 'object'
-  ) {
-    console.log(
-      `redux-persist/stateReconciler: rehydrated keys '${Object.keys(
-        inboundState,
-      ).join(', ')}'`,
-    );
+  if (inboundState && typeof inboundState === 'object') {
+    logger.debug(`autoMergeLevel2: rehydrated keys '${Object.keys(inboundState).join(', ')}'`);
   }
 
   return newState;

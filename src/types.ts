@@ -42,7 +42,6 @@ export interface PersistConfig {
    *      keys in side a reducer with default values, they will be merged into the rehydrated state.
    */
   rehydrationDepth?: 1 | 2;
-  debug?: boolean;
   serialize?: boolean | ((state: any) => string);
   deserialize?: boolean | ((serialized: string) => any);
   timeout?: number;
