@@ -16,7 +16,6 @@ export type {
   PersistorState,
   Persistoid,
   Storage,
-  WebStorage,
   MigrationManifest,
   RehydrateAction,
   PersistMigrate,

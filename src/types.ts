@@ -1,4 +1,4 @@
-import { REHYDRATE, REGISTER } from './constants';
+import type { REHYDRATE, REGISTER } from './constants';
 
 export interface PersistState {
   version: number
@@ -13,13 +13,6 @@ export type PersistMigrate = (
   state: PersistedState,
   currentVersion: number
 ) => Promise<PersistedState>;
-
-export type StateReconciler<S> = (
-  inboundState: any,
-  state: S,
-  reducedState: S,
-  config: PersistConfig
-) => S;
 
 export interface PersistConfig {
   version?: number
@@ -68,26 +61,11 @@ export interface Storage {
   removeItem(key: string, ...args: Array<any>): any
 }
 
-export interface WebStorage extends Storage {
-  /**
-   * @desc Fetches key and returns item in a promise.
-   */
-  getItem(key: string): Promise<string | null>
-  /**
-   * @desc Sets value for key and returns item in a promise.
-   */
-  setItem(key: string, item: string): Promise<void>
-  /**
-   * @desc Removes value for key.
-   */
-  removeItem(key: string): Promise<void>
-}
-
 export interface MigrationManifest {
   [key: string]: (state: PersistedState) => PersistedState
 }
 
-export type RehydrateErrorType = any;
+type RehydrateErrorType = any;
 
 export interface RehydrateAction {
   type: typeof REHYDRATE
@@ -101,7 +79,7 @@ export interface Persistoid {
   flush(): Promise<any>
 }
 
-export interface RegisterAction {
+interface RegisterAction {
   type: typeof REGISTER
   key: string
 }
@@ -113,7 +91,7 @@ export interface PersistorState {
   bootstrapped: boolean
 }
 
-export type PersistorSubscribeCallback = () => any;
+type PersistorSubscribeCallback = () => any;
 
 /**
  * A persistor is a redux store unto itself, allowing you to purge stored state, flush all
