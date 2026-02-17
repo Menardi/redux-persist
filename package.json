@@ -1,6 +1,6 @@
 {
   "name": "@menardi/redux-persist",
-  "version": "7.0.1",
+  "version": "8.0.0",
   "description": "Persist and rehydrate Redux stores",
   "author": "Menardi",
   "license": "MIT",
