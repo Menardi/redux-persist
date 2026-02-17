@@ -5,6 +5,7 @@
 ### Changed
 
 - **Breaking**: `createTransform` now takes an object argument to allow for stronger typing, and to make it more clear when each transform is called
+- The `serialize` and `deserialize` config options have been marked as deprecated (in favour of using `transforms`) and will be removed in a future version
 
 ### Fixed
 

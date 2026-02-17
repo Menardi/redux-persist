@@ -70,11 +70,11 @@ export interface PersistConfig {
    *  object (which still has your old date format), and returns a new state object which has
    *  converted it to the new date format.
    *
-   *  Pass `handleDateFormatMigration` as key `0` to `createMigration`. This function will be run once,
+   *  Pass `handleDateFormatMigration` as key `0` to `createMigrate`. This function will be run once,
    *  the first time your application runs after the version has increased.
    *
    *  @example
-   *  migrate: createMigration({
+   *  migrate: createMigrate({
    *   0: handleDateFormatMigration,
    *  })
    */
@@ -88,10 +88,14 @@ export interface PersistConfig {
    *      keys in side a reducer with default values, they will be merged into the rehydrated state.
    */
   rehydrationDepth?: 1 | 2;
-  /** A custom serialization function. Or set to `false` to disable per-reducer serialization (the
+  /** @deprecated This will be removed in a future version. Use `transforms` instead.
+   *
+   *  A custom serialization function. Or set to `false` to disable per-reducer serialization (the
    *  whole state will still be passed to `JSON.stringify` before being persisted) */
   serialize?: boolean | ((state: any) => string);
-  /** A custom deserialization function. Or set to `false` to disable per-reducer deserialization. */
+  /** @deprecated This will be removed in a future version. Use `transforms` instead.
+   *
+   *  A custom deserialization function. Or set to `false` to disable per-reducer deserialization. */
   deserialize?: boolean | ((serialized: string) => any);
   /** How long to wait (in milliseconds) for initial rehydration to complete. If timeout is reached,
    *  an error will be thrown. Set to 0 to disable the timeout and wait forever.
