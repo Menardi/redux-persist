@@ -84,6 +84,7 @@ describe('createPersistoid', () => {
     });
     update({ a: 1 });
     try { clock.tick(1); } catch { /* expected */ }
+
     expect(setItemSpy.callCount).toBe(0);
   });
 });

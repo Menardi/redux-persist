@@ -43,7 +43,7 @@ describe('Typescript types', () => {
       }
     };
 
-    type RtkState = { isSelected: boolean, date: Date };
+    type RtkState = { isSelected: boolean; date: Date };
 
     const initialState: RtkState = { isSelected: true, date: new Date() };
 

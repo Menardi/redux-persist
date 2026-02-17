@@ -17,13 +17,16 @@ export default function autoMergeLevel1<State extends Record<string, any>>(
       if (key === '_persist') return;
       // if reducer modifies substate, skip auto rehydration
       if (originalState[key] !== reducedState[key]) {
-        if (process.env.NODE_ENV !== 'production' && debug)
+        if (process.env.NODE_ENV !== 'production' && debug) {
           console.log(
             'redux-persist/stateReconciler: sub state for key `%s` modified, skipping.',
             key,
           );
+        }
+
         return;
       }
+
       // otherwise hard set the new value
       newState[key] = inboundState[key];
     });
@@ -34,12 +37,13 @@ export default function autoMergeLevel1<State extends Record<string, any>>(
     debug &&
     inboundState &&
     typeof inboundState === 'object'
-  )
+  ) {
     console.log(
       `redux-persist/stateReconciler: rehydrated keys '${Object.keys(
         inboundState,
       ).join(', ')}'`,
     );
+  }
 
   return newState;
 }

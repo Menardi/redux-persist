@@ -34,11 +34,13 @@ export default async function getStoredState(
     });
     return state;
   } catch (err) {
-    if (process.env.NODE_ENV !== 'production' && debug)
+    if (process.env.NODE_ENV !== 'production' && debug) {
       console.log(
         `redux-persist/getStoredState: Error restoring data ${serialized}`,
         err,
       );
+    }
+
     throw err;
   }
 }

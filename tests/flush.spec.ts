@@ -14,6 +14,7 @@ const reducer = (state = initialState, { type }) => {
   if (type === INCREMENT) {
     return mapValues(state, v => v + 1);
   }
+
   return state;
 };
 

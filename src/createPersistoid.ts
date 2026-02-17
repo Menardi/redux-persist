@@ -19,6 +19,7 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
   } else {
     serialize = defaultSerialize;
   }
+
   const writeFailHandler = config.writeFailHandler || null;
 
   // initialize stateful values
@@ -124,6 +125,7 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
     while (keysToProcess.length !== 0) {
       processNextKey();
     }
+
     return writePromise || Promise.resolve();
   };
 

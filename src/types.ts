@@ -1,12 +1,12 @@
 import type { REHYDRATE, REGISTER } from './constants';
 
 export interface PersistState {
-  version: number
-  rehydrated: boolean
+  version: number;
+  rehydrated: boolean;
 }
 
 export type PersistedState = {
-  _persist: PersistState
+  _persist: PersistState;
 } | undefined;
 
 export type PersistMigrate = (
@@ -15,24 +15,24 @@ export type PersistMigrate = (
 ) => Promise<PersistedState>;
 
 export interface PersistConfig {
-  version?: number
-  storage: Storage
-  key: string
-  allowlist?: string[]
-  blocklist?: string[]
+  version?: number;
+  storage: Storage;
+  key: string;
+  allowlist?: string[];
+  blocklist?: string[];
   /** @deprecated Use `allowlist` instead */
-  whitelist?: string[]
+  whitelist?: string[];
   /** @deprecated Use `blocklist` instead */
-  blacklist?: string[]
+  blacklist?: string[];
   /** Transform data per reducer before it is persisted, and before it is hydrated. Use the
    *  `createTransform` function to create type-safe transforms rather than passing them directly. */
   transforms?: {
     reducerName: string;
     onBeforeRehydrate?: (state: any) => any;
     onBeforePersist?: (state: any) => any;
-  }[]
-  throttle?: number
-  migrate?: PersistMigrate
+  }[];
+  throttle?: number;
+  migrate?: PersistMigrate;
   /** How deeply should rehydration merge into the existing state?
    *
    *  1 - Overwrite existing reducers at the top level. If you later add new keys inside a reducer
@@ -41,54 +41,54 @@ export interface PersistConfig {
    *  2 - (Default) Merge each incoming reducer into the initialised reducer. If you later add new
    *      keys in side a reducer with default values, they will be merged into the rehydrated state.
    */
-  rehydrationDepth?: 1 | 2
-  debug?: boolean
-  serialize?: boolean | ((state: any) => string)
-  deserialize?: boolean | ((serialized: string) => any)
-  timeout?: number
-  writeFailHandler?: (err: Error) => void
-  onError?: (err: Error) => void
+  rehydrationDepth?: 1 | 2;
+  debug?: boolean;
+  serialize?: boolean | ((state: any) => string);
+  deserialize?: boolean | ((serialized: string) => any);
+  timeout?: number;
+  writeFailHandler?: (err: Error) => void;
+  onError?: (err: Error) => void;
 }
 
 export interface PersistorOptions {
-  enhancer?: (createStore: any) => any
-  manualPersist?: boolean
+  enhancer?: (createStore: any) => any;
+  manualPersist?: boolean;
 }
 
 export interface Storage {
-  getItem(key: string, ...args: Array<any>): any
-  setItem(key: string, value: any, ...args: Array<any>): any
-  removeItem(key: string, ...args: Array<any>): any
+  getItem(key: string, ...args: Array<any>): any;
+  setItem(key: string, value: any, ...args: Array<any>): any;
+  removeItem(key: string, ...args: Array<any>): any;
 }
 
 export interface MigrationManifest {
-  [key: string]: (state: PersistedState) => PersistedState
+  [key: string]: (state: PersistedState) => PersistedState;
 }
 
 type RehydrateErrorType = any;
 
 export interface RehydrateAction {
-  type: typeof REHYDRATE
-  key: string
-  payload?: object | null
-  err?: RehydrateErrorType | null
+  type: typeof REHYDRATE;
+  key: string;
+  payload?: object | null;
+  err?: RehydrateErrorType | null;
 }
 
 export interface Persistoid {
-  update(state: object): void
-  flush(): Promise<any>
+  update(state: object): void;
+  flush(): Promise<any>;
 }
 
 interface RegisterAction {
-  type: typeof REGISTER
-  key: string
+  type: typeof REGISTER;
+  key: string;
 }
 
 export type PersistorAction = RehydrateAction | RegisterAction;
 
 export interface PersistorState {
-  registry: Array<string>
-  bootstrapped: boolean
+  registry: Array<string>;
+  bootstrapped: boolean;
 }
 
 type PersistorSubscribeCallback = () => any;
@@ -98,11 +98,11 @@ type PersistorSubscribeCallback = () => any;
  * pending state serialization and immediately write to disk
  */
 export interface Persistor {
-  pause(): void
-  persist(): void
-  purge(): Promise<any>
-  flush(): Promise<any>
-  readonly dispatch: (action: PersistorAction) => PersistorAction
-  readonly getState: () => PersistorState
-  readonly subscribe: (callback: PersistorSubscribeCallback) => () => any
+  pause(): void;
+  persist(): void;
+  purge(): Promise<any>;
+  flush(): Promise<any>;
+  readonly dispatch: (action: PersistorAction) => PersistorAction;
+  readonly getState: () => PersistorState;
+  readonly subscribe: (callback: PersistorSubscribeCallback) => () => any;
 }

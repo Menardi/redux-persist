@@ -88,6 +88,7 @@ describe('persistReducer', () => {
       if (action.type === 'INCREMENT') return { ...state, count: state.count + 1 };
       return state;
     };
+
     const persistedReducer = persistReducer(errorConfig, baseReducer);
     const state = persistedReducer(undefined, { type: PERSIST, register, rehydrate });
     await sleep(10);

@@ -46,12 +46,14 @@ export default function persistStore(
       'migrate',
     ];
     bannedKeys.forEach(k => {
-      if (!!optionsToTest[k])
+      if (!!optionsToTest[k]) {
         console.error(
           `redux-persist: invalid option passed to persistStore: "${k}". You may be incorrectly passing persistConfig into persistStore, whereas it should be passed into persistReducer.`,
         );
+      }
     });
   }
+
   let boostrappedCb: BoostrappedCb | false = cb || false;
 
   const _pStore = createStore(

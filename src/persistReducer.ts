@@ -23,35 +23,35 @@ type PersistPartial = { _persist: PersistState };
 
 // Internal action types with callbacks
 interface PersistAction {
-  type: typeof PERSIST
-  register: (key: string) => void
-  rehydrate: (key: string, payload: any, err?: any) => void
-  [key: string]: any
+  type: typeof PERSIST;
+  register: (key: string) => void;
+  rehydrate: (key: string, payload: any, err?: any) => void;
+  [key: string]: any;
 }
 
 interface PurgeAction {
-  type: typeof PURGE
-  result: (result: Promise<any>) => void
-  [key: string]: any
+  type: typeof PURGE;
+  result: (result: Promise<any>) => void;
+  [key: string]: any;
 }
 
 interface FlushAction {
-  type: typeof FLUSH
-  result: (result: Promise<any> | null) => void
-  [key: string]: any
+  type: typeof FLUSH;
+  result: (result: Promise<any> | null) => void;
+  [key: string]: any;
 }
 
 interface PauseAction {
-  type: typeof PAUSE
-  [key: string]: any
+  type: typeof PAUSE;
+  [key: string]: any;
 }
 
 interface RehydrateInternalAction {
-  type: typeof REHYDRATE
-  key: string
-  payload?: any
-  err?: any
-  [key: string]: any
+  type: typeof REHYDRATE;
+  key: string;
+  payload?: any;
+  err?: any;
+  [key: string]: any;
 }
 
 type InternalAction = PersistAction | PurgeAction | FlushAction | PauseAction | RehydrateInternalAction;
@@ -75,10 +75,11 @@ export default function persistReducer<State, PreloadedState = State>(
   if (process.env.NODE_ENV !== 'production') {
     if (!config) throw new Error('config is required for persistReducer');
     if (!config.key) throw new Error('key is required in persistor config');
-    if (!config.storage)
+    if (!config.storage) {
       throw new Error(
         "redux-persist: config.storage is required. Try using one of the provided storage engines `import storage from 'redux-persist/lib/storage'`",
       );
+    }
   }
 
   const version = config.version !== undefined ? config.version : DEFAULT_VERSION;
@@ -109,7 +110,7 @@ export default function persistReducer<State, PreloadedState = State>(
           let _sealed = false;
           const _rehydrate = (payload: any, err?: any): void => {
             // dev warning if we are already sealed
-            if (process.env.NODE_ENV !== 'production' && _sealed)
+            if (process.env.NODE_ENV !== 'production' && _sealed) {
               console.error(
                 `redux-persist: rehydrate for "${
                   config.key
@@ -117,6 +118,7 @@ export default function persistReducer<State, PreloadedState = State>(
                 payload,
                 err,
               );
+            }
 
             // only rehydrate if we are not already sealed
             if (err) {
@@ -128,6 +130,7 @@ export default function persistReducer<State, PreloadedState = State>(
               _sealed = true;
             }
           };
+
           timeout &&
             setTimeout(() => {
               !_sealed &&
@@ -176,8 +179,10 @@ export default function persistReducer<State, PreloadedState = State>(
                   _rehydrate(migratedState);
                 },
                 migrateErr => {
-                  if (process.env.NODE_ENV !== 'production' && migrateErr)
+                  if (process.env.NODE_ENV !== 'production' && migrateErr) {
                     console.error('redux-persist: migration error', migrateErr);
+                  }
+
                   _rehydrate(undefined, migrateErr);
                 },
               );
@@ -213,11 +218,12 @@ export default function persistReducer<State, PreloadedState = State>(
         }
         case REHYDRATE: {
           // noop on restState if purging
-          if (_purge)
+          if (_purge) {
             return {
               ...restState,
               _persist: { ..._persist, rehydrated: true },
             } as State & PersistPartial;
+          }
 
           /** if key does not match, will continue to default below */
           if (action.key === config.key) {
@@ -235,6 +241,7 @@ export default function persistReducer<State, PreloadedState = State>(
             };
             return conditionalUpdate(newState);
           }
+
           break;
         }
       }

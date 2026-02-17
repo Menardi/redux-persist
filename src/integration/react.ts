@@ -3,14 +3,14 @@ import { PureComponent, ReactNode } from 'react';
 import type { Persistor } from '../types';
 
 type Props = {
-  onBeforeLift?: () => void | Promise<void>
-  children: ReactNode | ((bootstrapped: boolean) => ReactNode)
-  loading: ReactNode
-  persistor: Persistor
+  onBeforeLift?: () => void | Promise<void>;
+  children: ReactNode | ((bootstrapped: boolean) => ReactNode);
+  loading: ReactNode;
+  persistor: Persistor;
 };
 
 type State = {
-  bootstrapped: boolean
+  bootstrapped: boolean;
 };
 
 export class PersistGate extends PureComponent<Props, State> {
@@ -41,6 +41,7 @@ export class PersistGate extends PureComponent<Props, State> {
       } else {
         this.setState({ bootstrapped: true });
       }
+
       this._unsubscribe && this._unsubscribe();
     }
   };
@@ -51,11 +52,13 @@ export class PersistGate extends PureComponent<Props, State> {
 
   render(): ReactNode {
     if (process.env.NODE_ENV !== 'production') {
-      if (typeof this.props.children === 'function' && this.props.loading)
+      if (typeof this.props.children === 'function' && this.props.loading) {
         console.error(
           'redux-persist: PersistGate expects either a function child or loading prop, but not both. The loading prop will be ignored.',
         );
+      }
     }
+
     if (typeof this.props.children === 'function') {
       return this.props.children(this.state.bootstrapped);
     }
