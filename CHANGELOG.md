@@ -9,6 +9,11 @@
   - Stored values which are not plain objects (e.g. `null`) now always replace initial values, instead of being ignored or spread into them
   - Stored `undefined` values are now always ignored, keeping the initial value
 
+### Removed
+
+- **Breaking**: The deprecated `whitelist` and `blacklist` config options have been removed (use `allowlist` and `blocklist` instead)
+- **Breaking**: The deprecated `serialize` and `deserialize` config options have been removed (use `transforms` instead)
+
 ## [8.0.0] - 2026-02-17
 
 ### Changed

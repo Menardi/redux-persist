@@ -21,7 +21,7 @@ I use this fork for my mobile apps, so my main goal is to ensure it stores data 
     - `stateReconciler: autoMergeLevel2` -> `rehydrationDepthLimit: 2`
     - `stateReconciler: hardSet` -> removed
     - By default there is no limit, so stored state is deeply merged into the initial state
-2. The `whitelist` and `blacklist` config options have been renamed, but the old names are still supported for backwards compatibility
+2. The `whitelist` and `blacklist` config options have been renamed
     - `whitelist` -> `allowlist`
     - `blacklist` -> `blocklist`
 3. `persistCombineReducers` has been removed
@@ -31,6 +31,8 @@ I use this fork for my mobile apps, so my main goal is to ensure it stores data 
 5. The deprecated `keyPrefix` config option has been removed
 6. The `createTransform` function now takes an object argument
     - `createTransform(in, out, { whitelist: ['myReducer'] })` -> `createTransform({ reducerName: 'myReducer', onBeforePersist: in, onBeforeRehydrate: out })`
+7. The `serialize` and `deserialize` config options have been removed
+    - Use `transforms` instead
 
 ## Basic Usage
 Basic usage involves adding `persistReducer` and `persistStore` to your setup.

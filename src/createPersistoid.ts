@@ -6,20 +6,12 @@ import { logger } from './utils';
 type IntervalID = ReturnType<typeof setInterval>;
 
 export default function createPersistoid(config: PersistConfig): Persistoid {
-  const blocklist: Array<string> | null = config.blocklist || config.blacklist || null;
-  const allowlist: Array<string> | null = config.allowlist || config.whitelist || null;
+  const blocklist: Array<string> | null = config.blocklist || null;
+  const allowlist: Array<string> | null = config.allowlist || null;
   const transforms = config.transforms || [];
   const throttle = config.throttle || 0;
   const storageKey = `${KEY_PREFIX}${config.key}`;
   const storage = config.storage;
-  let serialize: (state: any) => string;
-  if (config.serialize === false) {
-    serialize = (x: any) => x;
-  } else if (typeof config.serialize === 'function') {
-    serialize = config.serialize;
-  } else {
-    serialize = defaultSerialize;
-  }
 
   const writeFailHandler = config.writeFailHandler || null;
 
@@ -77,7 +69,7 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
 
     if (transformedState !== undefined) {
       try {
-        stagedState[key] = serialize(transformedState);
+        stagedState[key] = JSON.stringify(transformedState);
       } catch (err) {
         logger.error('createPersistoid: error serializing state', err);
         throw err;
@@ -102,7 +94,7 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
 
     // Wrap in promise to allow for synchronous `setItem` calls. We create a new Promise rather than
     // just using `Promise.resolve` so errors on synchronous writes are thrown correctly.
-    writePromise = new Promise(resolve => resolve(storage.setItem(storageKey, serialize(stagedState))))
+    writePromise = new Promise(resolve => resolve(storage.setItem(storageKey, JSON.stringify(stagedState))))
       .catch(onWriteFail);
   }
 
@@ -131,8 +123,4 @@ export default function createPersistoid(config: PersistConfig): Persistoid {
     update,
     flush,
   };
-}
-
-function defaultSerialize(data: any): string {
-  return JSON.stringify(data);
 }

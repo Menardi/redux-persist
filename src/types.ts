@@ -30,10 +30,6 @@ export interface PersistConfig {
   /** Names of reducers to exclude from persistence. If set, all reducers will be persisted except
    *  for those included in this array. */
   blocklist?: string[];
-  /** @deprecated Use `allowlist` instead */
-  whitelist?: string[];
-  /** @deprecated Use `blocklist` instead */
-  blacklist?: string[];
   /** Transform data per reducer before it is persisted, and before it is hydrated. Use the
    *  `createTransform` function to create type-safe transforms rather than passing them directly. */
   transforms?: {
@@ -94,15 +90,6 @@ export interface PersistConfig {
    *  3+ - Merge further levels of nested objects in the same way.
    */
   rehydrationDepthLimit?: number;
-  /** @deprecated This will be removed in a future version. Use `transforms` instead.
-   *
-   *  A custom serialization function. Or set to `false` to disable per-reducer serialization (the
-   *  whole state will still be passed to `JSON.stringify` before being persisted) */
-  serialize?: boolean | ((state: any) => string);
-  /** @deprecated This will be removed in a future version. Use `transforms` instead.
-   *
-   *  A custom deserialization function. Or set to `false` to disable per-reducer deserialization. */
-  deserialize?: boolean | ((serialized: string) => any);
   /** How long to wait (in milliseconds) for initial rehydration to complete. If timeout is reached,
    *  an error will be thrown. Set to 0 to disable the timeout and wait forever.
    *

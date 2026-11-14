@@ -68,13 +68,10 @@ describe('createPersistoid', () => {
   });
 
   it('throws an error if serialization fails for a key', () => {
-    const { update } = createPersistoid({
-      ...config,
-      serialize: () => { throw new Error('serialization error'); },
-    });
+    const { update } = createPersistoid(config);
 
-    update({ a: 1 });
-    expect(() => clock.tick(1)).toThrow('serialization error');
+    update({ a: 1n });
+    expect(() => clock.tick(1)).toThrow('BigInt');
     expect(setItemSpy.called).toBe(false);
   });
 });
