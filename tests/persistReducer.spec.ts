@@ -5,13 +5,9 @@ import { PERSIST, REHYDRATE } from '../src/constants';
 import persistReducer from '../src/persistReducer';
 import { createInMemoryStorage } from './utils/inMemoryStorage';
 import sleep from './utils/sleep';
-import * as autoMergeLevel1Module from '../src/stateReconciler/autoMergeLevel1';
-import * as autoMergeLevel2Module from '../src/stateReconciler/autoMergeLevel2';
+import * as autoMergeModule from '../src/stateReconciler/autoMerge';
 
-const reconcilerSpies = {
-  level1: vi.spyOn(autoMergeLevel1Module, 'default'),
-  level2: vi.spyOn(autoMergeLevel2Module, 'default'),
-};
+const autoMergeSpy = vi.spyOn(autoMergeModule, 'default');
 
 const emptyReducer = () => ({});
 const config = {
@@ -119,63 +115,66 @@ describe('persistReducer', () => {
     expect(onError.firstCall.args[0].message).toBe('migration failed');
   });
 
-  describe('rehydrationDepth', () => {
+  describe('rehydrationDepthLimit', () => {
     const baseReducer = (state: any = { count: 0 }, action: any) => {
       if (action.type === 'INCREMENT') return { ...state, count: state.count + 1 };
       return state;
     };
 
     beforeEach(() => {
-      reconcilerSpies.level1.mockClear();
-      reconcilerSpies.level2.mockClear();
+      autoMergeSpy.mockClear();
     });
 
-    it('uses autoMergeLevel2 for state reconciliation if rehydrationDepth is not specified', async () => {
+    it.each([
+      [undefined, Infinity],
+      [1, 1],
+      [2, 2],
+      [3, 3],
+    ])('reconciles with depth limit %s -> %s', async (rehydrationDepthLimit, expectedDepth) => {
       const storage = createInMemoryStorage();
-      await storage.setItem('persist:depth-default', JSON.stringify({ count: '"5"' }));
-      const testConfig = { key: 'depth-default', version: 1, storage };
+      await storage.setItem('persist:depth-test', JSON.stringify({ count: '"5"' }));
+      const testConfig = { key: 'depth-test', version: 1, storage, rehydrationDepthLimit };
 
       const persistedReducer = persistReducer(testConfig, baseReducer);
       const state = persistedReducer(undefined, { type: PERSIST, register, rehydrate });
       await sleep(10);
 
       const payload = rehydrate.firstCall.args[1];
-      persistedReducer(state, { type: REHYDRATE, key: testConfig.key, payload });
+      const rehydratedState = persistedReducer(state, { type: REHYDRATE, key: testConfig.key, payload });
 
-      expect(reconcilerSpies.level2).toHaveBeenCalledOnce();
-      expect(reconcilerSpies.level1).not.toHaveBeenCalled();
+      expect(autoMergeSpy).toHaveBeenCalledOnce();
+      expect(autoMergeSpy.mock.calls[0][3]).toBe(expectedDepth);
+      expect(rehydratedState.count).toBe('5');
     });
 
-    it('uses autoMergeLevel1 for state reconciliation if rehydrationDepth=1', async () => {
+    it('deeply merges nested stored state by default', async () => {
+      const initialState = { settings: { display: { theme: { name: 'light', contrast: 'normal' }, zoom: 1 } } };
       const storage = createInMemoryStorage();
-      await storage.setItem('persist:depth-1', JSON.stringify({ count: '"5"' }));
-      const testConfig = { key: 'depth-1', version: 1, storage, rehydrationDepth: 1 as const };
+      const stored = { display: { theme: { name: 'dark' } } };
+      await storage.setItem('persist:depth-deep', JSON.stringify({ settings: JSON.stringify(stored) }));
+      const testConfig = { key: 'depth-deep', version: 1, storage };
 
-      const persistedReducer = persistReducer(testConfig, baseReducer);
-      const state = persistedReducer(undefined, { type: PERSIST, register, rehydrate });
+      const persistedReducer = persistReducer(testConfig, (state: any = initialState) => state);
+      const initialisedState = persistedReducer(undefined, { type: 'INIT' });
+      const state = persistedReducer(initialisedState, { type: PERSIST, register, rehydrate });
       await sleep(10);
 
       const payload = rehydrate.firstCall.args[1];
-      persistedReducer(state, { type: REHYDRATE, key: testConfig.key, payload });
+      const rehydratedState = persistedReducer(state, { type: REHYDRATE, key: testConfig.key, payload });
 
-      expect(reconcilerSpies.level1).toHaveBeenCalledOnce();
-      expect(reconcilerSpies.level2).not.toHaveBeenCalled();
+      expect(rehydratedState.settings).toEqual({ display: { theme: { name: 'dark', contrast: 'normal' }, zoom: 1 } });
     });
 
-    it('uses autoMergeLevel2 for state reconciliation if rehydrationDepth=2', async () => {
-      const storage = createInMemoryStorage();
-      await storage.setItem('persist:depth-2', JSON.stringify({ count: '"5"' }));
-      const testConfig = { key: 'depth-2', version: 1, storage, rehydrationDepth: 2 as const };
+    it.each([0, -1, 1.5, NaN, Infinity])('throws for invalid rehydrationDepthLimit %s', rehydrationDepthLimit => {
+      const testConfig = { key: 'depth-invalid', version: 1, storage: createInMemoryStorage(), rehydrationDepthLimit };
 
-      const persistedReducer = persistReducer(testConfig, baseReducer);
-      const state = persistedReducer(undefined, { type: PERSIST, register, rehydrate });
-      await sleep(10);
+      expect(() => persistReducer(testConfig, baseReducer)).toThrow('rehydrationDepthLimit must be a positive integer');
+    });
 
-      const payload = rehydrate.firstCall.args[1];
-      persistedReducer(state, { type: REHYDRATE, key: testConfig.key, payload });
+    it('throws if the renamed rehydrationDepth option is set', () => {
+      const testConfig = { key: 'depth-renamed', version: 1, storage: createInMemoryStorage(), rehydrationDepth: 2 } as any;
 
-      expect(reconcilerSpies.level2).toHaveBeenCalledOnce();
-      expect(reconcilerSpies.level1).not.toHaveBeenCalled();
+      expect(() => persistReducer(testConfig, baseReducer)).toThrow('rehydrationDepth has been renamed to config.rehydrationDepthLimit');
     });
   });
 });

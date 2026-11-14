@@ -79,15 +79,21 @@ export interface PersistConfig {
    *  })
    */
   migrate?: PersistMigrate;
-  /** How deeply should rehydration merge into the existing state?
+  /** The maximum depth to which rehydration merges stored state into the existing state. Must be a
+   *  positive integer. If not set, all levels of nested objects are merged.
+   *
+   *  Keys in your initial state which are missing from the stored state are always restored, so
+   *  objects with dynamic keys should be empty in your initial state, or sit below the limit.
    *
    *  1 - Overwrite existing reducers at the top level. If you later add new keys inside a reducer
    *      with default values, they will be removed if they are not in the rehydrated state.
    *
-   *  2 - (Default) Merge each incoming reducer into the initialised reducer. If you later add new
-   *      keys in side a reducer with default values, they will be merged into the rehydrated state.
+   *  2 - Merge each incoming reducer into the initialised reducer. If you later add new keys
+   *      inside a reducer with default values, they will be merged into the rehydrated state.
+   *
+   *  3+ - Merge further levels of nested objects in the same way.
    */
-  rehydrationDepth?: 1 | 2;
+  rehydrationDepthLimit?: number;
   /** @deprecated This will be removed in a future version. Use `transforms` instead.
    *
    *  A custom serialization function. Or set to `false` to disable per-reducer serialization (the

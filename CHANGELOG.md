@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- **Breaking**: Stored state is now deeply merged by default (set `rehydrationDepthLimit: 2` to keep the previous behaviour)
+  - `rehydrationDepth` has been renamed to `rehydrationDepthLimit` (defaults to no limit)
+  - Stored values which are not plain objects (e.g. `null`) now always replace initial values, instead of being ignored or spread into them
+  - Stored `undefined` values are now always ignored, keeping the initial value
+
 ## [8.0.0] - 2026-02-17
 
 ### Changed

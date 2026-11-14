@@ -11,8 +11,7 @@ import {
 import createPersistoid from './createPersistoid';
 import getStoredState from './getStoredState';
 import purgeStoredState from './purgeStoredState';
-import autoMergeLevel1 from './stateReconciler/autoMergeLevel1';
-import autoMergeLevel2 from './stateReconciler/autoMergeLevel2';
+import autoMerge from './stateReconciler/autoMerge';
 import {
   PersistConfig,
   PersistState,
@@ -81,12 +80,20 @@ export default function persistReducer<State, PreloadedState = State>(
         "redux-persist: config.storage is required. Try using one of the provided storage engines `import storage from 'redux-persist/lib/storage'`",
       );
     }
+
+    if ('rehydrationDepth' in config) {
+      throw new Error('redux-persist: config.rehydrationDepth has been renamed to config.rehydrationDepthLimit');
+    }
+
+    const limit = config.rehydrationDepthLimit;
+    if (limit !== undefined && !(Number.isInteger(limit) && limit >= 1)) {
+      throw new Error(`redux-persist: config.rehydrationDepthLimit must be a positive integer, received ${limit}`);
+    }
   }
 
   const version = config.version !== undefined ? config.version : DEFAULT_VERSION;
 
-  const rehydrationDepth = config.rehydrationDepth || 2;
-  const stateReconciler = rehydrationDepth === 1 ? autoMergeLevel1 : autoMergeLevel2;
+  const rehydrationDepthLimit = config.rehydrationDepthLimit ?? Infinity;
 
   const timeout = config.timeout !== undefined ? config.timeout : DEFAULT_TIMEOUT;
   let _persistoid: Persistoid | null = null;
@@ -227,7 +234,7 @@ export default function persistReducer<State, PreloadedState = State>(
             // only reconcile state if inboundState is defined
             const reconciledRest: State =
               inboundState !== undefined
-                ? stateReconciler(inboundState, state as any, reducedState)
+                ? autoMerge(inboundState, state as any, reducedState, rehydrationDepthLimit)
                 : reducedState;
 
             const newState = {

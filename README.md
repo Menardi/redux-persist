@@ -11,15 +11,16 @@ A fork of [redux-persist](https://github.com/rt2zz/redux-persist) (forked from v
 I use this fork for my mobile apps, so my main goal is to ensure it stores data reliably inside a mobile app like React Native or Capacitor.
 
 - Throws errors instead of silently deleting data when something goes wrong
-- State reconciliation defaults to level 2, which means that adding new keys inside a reducer with default values works as expected
+- Stored state is deeply merged into your initial state by default, so new keys you add to your initial state with default values work as expected
 - Support for Redux v5 and @reduxjs/toolkit
 
 ### Breaking changes from redux-persist v6
 
-1. The `stateReconciler` config option has been removed, and replaced with `rehydrationDepth`
-    - `stateReconciler: autoMergeLevel1` -> `rehydrationDepth: 1`
-    - `stateReconciler: autoMergeLevel2` -> `rehydrationDepth: 2`
+1. The `stateReconciler` config option has been removed, and replaced with `rehydrationDepthLimit`
+    - `stateReconciler: autoMergeLevel1` -> `rehydrationDepthLimit: 1`
+    - `stateReconciler: autoMergeLevel2` -> `rehydrationDepthLimit: 2`
     - `stateReconciler: hardSet` -> removed
+    - By default there is no limit, so stored state is deeply merged into the initial state
 2. The `whitelist` and `blacklist` config options have been renamed, but the old names are still supported for backwards compatibility
     - `whitelist` -> `allowlist`
     - `blacklist` -> `blocklist`
